@@ -713,26 +713,33 @@
         }
 
         function renderGastos() {
-            const tbody = document.getElementById('bodyGastos');
-            tbody.innerHTML = '';
-            
-            allData.gastos.forEach((g, i) => {
-                const row = `
-                    <tr>
-                        <td>${g.fecha}</td>
-                        <td>${g.descripcion}</td>
-                        <td>${g.categoria}</td>
-                        <td>${formatCurrency(g.monto)}</td>
-                        <td>${g.pago}</td>
-                        <td><button class="btn btn-danger" onclick="deleteRecord('Gasto', ${i + 2})">Eliminar</button></td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
-            });
-            
-            document.getElementById('loadingGastos').style.display = 'none';
-            document.getElementById('tableGastos').style.display = 'table';
-        }
+    const tbody = document.getElementById('bodyGastos');
+    tbody.innerHTML = '';
+    
+    allData.gastos.forEach((g, i) => {
+        // Ajustamos los nombres de las propiedades según tu JSON
+        const fecha = g.fecha ? g.fecha.split('T')[0] : '---';
+        const desc = g.descripcion || 'Sin descripción';
+        const cat = g.categoría || g.categoria || '---'; // Soporta con y sin tilde
+        const monto = g.monto || 0;
+        const pago = g.pago || '---';
+
+        const row = `
+            <tr>
+                <td>${fecha}</td>
+                <td>${desc}</td>
+                <td>${cat}</td>
+                <td>${formatCurrency(monto)}</td>
+                <td>${pago}</td>
+                <td><button class="btn btn-danger" onclick="deleteRecord('Gasto', ${i + 2})">Eliminar</button></td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+    
+    document.getElementById('loadingGastos').style.display = 'none';
+    document.getElementById('tableGastos').style.display = 'table';
+}
 
         function renderIngresos() {
             const tbody = document.getElementById('bodyIngresos');
