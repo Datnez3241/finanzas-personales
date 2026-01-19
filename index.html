@@ -183,4 +183,98 @@
         }
 
         async function sendData(data) {
-            await fetch(API_URL, { method
+            await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
+            await loadAllData();
+        }
+
+        function renderGastos() {
+            const tbody = document.getElementById('bodyGastos');
+            tbody.innerHTML = '';
+            allData.gastos.forEach((g, i) => {
+                tbody.innerHTML += `<tr>
+                    <td>${g.fecha}</td>
+                    <td>${g.descripcion || '---'}</td>
+                    <td>${g.categoria || '---'}</td>
+                    <td>$${Number(g.monto).toLocaleString()}</td>
+                    <td>${g.pago}</td>
+                    <td>
+                        <button class="btn btn-warning" onclick="editGasto(${i})">Editar</button>
+                        <button class="btn btn-danger" onclick="deleteRec('Gasto', ${i + 2})">Borrar</button>
+                    </td>
+                </tr>`;
+            });
+        }
+
+        function renderIngresos() {
+            const tbody = document.getElementById('bodyIngresos');
+            tbody.innerHTML = '';
+            allData.ingresos.forEach((ing, i) => {
+                tbody.innerHTML += `<tr>
+                    <td>${ing.fecha}</td>
+                    <td>${ing.descripcion || '---'}</td>
+                    <td>$${Number(ing.monto).toLocaleString()}</td>
+                    <td>${ing.fuente}</td>
+                    <td>
+                        <button class="btn btn-warning" onclick="editIngreso(${i})">Editar</button>
+                        <button class="btn btn-danger" onclick="deleteRec('Ingreso', ${i + 2})">Borrar</button>
+                    </td>
+                </tr>`;
+            });
+        }
+
+        function editGasto(i) {
+            const g = allData.gastos[i];
+            document.getElementById('gastoIndex').value = i + 2;
+            document.getElementById('gastoFecha').value = g.fecha;
+            document.getElementById('gastoDesc').value = g.descripcion;
+            document.getElementById('gastoCategoria').value = g.categoria;
+            document.getElementById('gastoMonto').value = g.monto;
+            document.getElementById('gastoPago').value = g.pago;
+            document.getElementById('titleGasto').innerText = "Editando Gasto";
+            document.getElementById('btnCancelGasto').style.display = "inline";
+            window.scrollTo(0,0);
+        }
+
+        function editIngreso(i) {
+            const ing = allData.ingresos[i];
+            document.getElementById('ingresoIndex').value = i + 2;
+            document.getElementById('ingresoFecha').value = ing.fecha;
+            document.getElementById('ingresoDesc').value = ing.descripcion;
+            document.getElementById('ingresoMonto').value = ing.monto;
+            document.getElementById('ingresoFuente').value = ing.fuente;
+            document.getElementById('titleIngreso').innerText = "Editando Ingreso";
+            document.getElementById('btnCancelIngreso').style.display = "inline";
+            window.scrollTo(0,0);
+        }
+
+        function resetForm(type) {
+            document.getElementById(`form${type}`).reset();
+            document.getElementById(`${type.toLowerCase()}Index`).value = "";
+            document.getElementById(`title${type}`).innerText = `Agregar ${type}`;
+            document.getElementById(`btnCancel${type}`).style.display = "none";
+            setDefaultDates();
+        }
+
+        async function deleteRec(type, row) {
+            if(confirm('¿Eliminar?')) {
+                await sendData({ action: `delete${type}`, index: row });
+            }
+        }
+
+        function showTab(name) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(name).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function updateDashboard() {
+            const tg = allData.gastos.reduce((s, g) => s + Number(g.monto), 0);
+            const ti = allData.ingresos.reduce((s, i) => s + Number(i.monto), 0);
+            document.getElementById('totalGastos').innerText = '$' + tg.toLocaleString();
+            document.getElementById('totalIngresos').innerText = '$' + ti.toLocaleString();
+            document.getElementById('balance').innerText = '$' + (ti - tg).toLocaleString();
+        }
+    </script>
+</body>
+</html>
