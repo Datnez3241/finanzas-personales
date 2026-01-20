@@ -3,346 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Control Financiero</title>
+    <title>Control Financiero - Conexión Actualizada</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        .tabs { display: flex; background: #f8f9fa; border-bottom: 2px solid #e9ecef; overflow-x: auto; }
-        .tab {
-            padding: 15px 30px;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            font-size: 1em;
-            font-weight: 600;
-            color: #6c757d;
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
-        .tab.active { color: #667eea; border-bottom: 3px solid #667eea; background: white; }
-        .content { padding: 30px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; text-align: center; }
+        .tabs { display: flex; background: #eee; border-bottom: 2px solid #ddd; }
+        .tab { padding: 15px 25px; cursor: pointer; border: none; background: none; font-weight: bold; color: #666; transition: 0.3s; }
+        .tab.active { background: white; color: #667eea; border-top: 3px solid #667eea; }
+        .content { padding: 25px; }
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 15px;
-        }
-        .card.green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
-        .card.blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-        .card.orange { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .chart-container { background: #f8f9fa; padding: 20px; border-radius: 15px; }
-        .form-container { background: #f8f9fa; padding: 30px; border-radius: 15px; max-width: 600px; margin-bottom: 30px; }
+        .tab-content.active { display: block; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #f8f9fa; padding: 12px; text-align: left; color: #444; border-bottom: 2px solid #eee; }
+        td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .btn-edit { background: #667eea; color: white; margin-right: 5px; }
+        .btn-delete { background: #e53e3e; color: white; }
+        .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-body { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 450px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; }
-        .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-primary { background: #667eea; color: white; }
-        .btn-danger { background: #ff4d4d; color: white; margin-left: 5px; }
-        .table-container { overflow-x: auto; margin-top: 20px; }
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th { background: #667eea; color: white; padding: 12px; text-align: left; }
-        td { padding: 12px; border-bottom: 1px solid #eee; }
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;
-        }
-        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="header">
-            <h1>💰 Mi Control Financiero</h1>
-            <p>Dashboard Interactivo</p>
-        </div>
-
-        <div class="tabs">
-            <button class="tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
-            <button class="tab" onclick="showTab('gastos')">💸 Gastos</button>
-            <button class="tab" onclick="showTab('ingresos')">💵 Ingresos</button>
-            <button class="tab" onclick="showTab('cdts')">🏦 CDTs</button>
-        </div>
-
-        <div class="content">
-            <div id="dashboard" class="tab-content active">
-                <div class="cards-grid">
-                    <div class="card"><h3>Gastos</h3><div class="amount" id="totalGastos">$0</div></div>
-                    <div class="card green"><h3>Ingresos</h3><div class="amount" id="totalIngresos">$0</div></div>
-                    <div class="card blue"><h3>Balance</h3><div class="amount" id="balance">$0</div></div>
-                    <div class="card orange"><h3>CDTs</h3><div class="amount" id="totalCDTs">$0</div></div>
-                </div>
-                <div class="charts-grid">
-                    <div class="chart-container"><canvas id="chartCategories"></canvas></div>
-                    <div class="chart-container"><canvas id="chartComparison"></canvas></div>
-                </div>
-            </div>
-
-            <div id="gastos" class="tab-content">
-                <div class="form-container">
-                    <h3>Registrar Gasto</h3>
-                    <form id="formGasto">
-                        <div class="form-group"><label>Fecha</label><input type="date" id="gastoFecha" required></div>
-                        <div class="form-group"><label>Descripción</label><input type="text" id="gastoDesc" required></div>
-                        <div class="form-group">
-                            <label>Categoría</label>
-                            <select id="gastoCategoria">
-                                <option value="Comida">Comida</option>
-                                <option value="Transporte">Transporte</option>
-                                <option value="Servicios">Servicios</option>
-                                <option value="Otros">Otros</option>
-                            </select>
-                        </div>
-                        <div class="form-group"><label>Monto</label><input type="number" id="gastoMonto" required></div>
-                        <div class="form-group"><label>Método</label><input type="text" id="gastoPago" placeholder="Nequi, Efectivo..."></div>
-                        <button type="submit" class="btn btn-primary">Guardar Gasto</button>
-                    </form>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead><tr><th>Fecha</th><th>Desc.</th><th>Cat.</th><th>Monto</th><th>Acciones</th></tr></thead>
-                        <tbody id="bodyGastos"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="ingresos" class="tab-content">
-                <div class="form-container">
-                    <h3>Registrar Ingreso</h3>
-                    <form id="formIngreso">
-                        <div class="form-group"><label>Fecha</label><input type="date" id="ingresoFecha" required></div>
-                        <div class="form-group"><label>Descripción</label><input type="text" id="ingresoDesc" required></div>
-                        <div class="form-group"><label>Monto</label><input type="number" id="ingresoMonto" required></div>
-                        <div class="form-group"><label>Fuente</label><input type="text" id="ingresoFuente" required></div>
-                        <button type="submit" class="btn btn-primary">Guardar Ingreso</button>
-                    </form>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead><tr><th>Fecha</th><th>Desc.</th><th>Monto</th><th>Fuente</th><th>Acciones</th></tr></thead>
-                        <tbody id="bodyIngresos"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="cdts" class="tab-content">
-                <div class="form-container">
-                    <h3>Nuevo CDT</h3>
-                    <form id="formCDT">
-                        <div class="form-group"><label>Banco</label><input type="text" id="cdtBanco" required></div>
-                        <div class="form-group"><label>Monto</label><input type="number" id="cdtMonto" required></div>
-                        <div class="form-group"><label>Tasa %</label><input type="number" step="0.1" id="cdtTasa" required></div>
-                        <div class="form-group"><label>Fecha Fin</label><input type="date" id="cdtFin" required></div>
-                        <button type="submit" class="btn btn-primary">Guardar CDT</button>
-                    </form>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead><tr><th>Banco</th><th>Monto</th><th>Tasa</th><th>Vence</th><th>Acciones</th></tr></thead>
-                        <tbody id="bodyCDTs"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+<div class="container">
+    <div class="header">
+        <h1>💰 Mi Control Financiero</h1>
+        <p>Conectado a Base de Datos en la Nube</p>
+    </div>
+    
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('gastos')">💸 Gastos</button>
+        <button class="tab" onclick="showTab('ingresos')">💵 Ingresos</button>
     </div>
 
-    <div id="modalEdit" class="modal">
-        <div class="modal-content">
-            <h3 id="editTitle">Editar Registro</h3>
-            <form id="formEdit">
-                <input type="hidden" id="editIndex">
-                <input type="hidden" id="editType">
-                <div id="editFields"></div>
-                <div style="margin-top:20px">
-                    <button type="submit" class="btn btn-primary">Actualizar</button>
-                    <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
-                </div>
-            </form>
+    <div class="content">
+        <div id="gastos" class="tab-content active">
+            <h2>Historial de Gastos</h2>
+            <table>
+                <thead>
+                    <tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Acciones</th></tr>
+                </thead>
+                <tbody id="bodyGastos"></tbody>
+            </table>
+        </div>
+
+        <div id="ingresos" class="tab-content">
+            <h2>Historial de Ingresos</h2>
+            <table>
+                <thead>
+                    <tr><th>Fecha</th><th>Fuente</th><th>Monto</th><th>Acciones</th></tr>
+                </thead>
+                <tbody id="bodyIngresos"></tbody>
+            </table>
         </div>
     </div>
+</div>
 
-    <script>
-        // REEMPLAZA ESTA URL CON LA TUYA DE GOOGLE APPS SCRIPT
-        const API_URL = 'https://script.google.com/macros/s/AKfycbw2GtG5vsvvpg2dfNMnBFmiEOco6oiv7wOwhuQD3iJmxWh73PwrhU7W_OeqSZXWr7Rf/exec';
+<div id="modalEdit" class="modal">
+    <div class="modal-body">
+        <h3 id="editTitle" style="margin-bottom: 15px; color: #764ba2;">Actualizar Registro</h3>
+        <form id="formEdit">
+            <input type="hidden" id="editIndex">
+            <input type="hidden" id="editType">
+            <div id="editFields"></div>
+            <div style="margin-top: 25px; text-align: right;">
+                <button type="button" class="btn" style="background:#a0aec0; color:white;" onclick="closeModal()">Cancelar</button>
+                <button type="submit" class="btn btn-edit">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-        let allData = { gastos: [], ingresos: [], cdts: [] };
-        let chart1, chart2;
+<script>
+    // URL PROPORCIONADA
+    const API_URL = 'https://script.google.com/macros/s/AKfycbw2GtG5vsvvpg2dfNMnBFmiEOco6oiv7wOwhuQD3iJmxWh73PwrhU7W_OeqSZXWr7Rf/exec';
+    
+    let allData = { gastos: [], ingresos: [] };
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            setupForms();
-            const today = new Date().toISOString().split('T')[0];
-            document.querySelectorAll('input[type="date"]').forEach(i => i.value = today);
+    document.addEventListener('DOMContentLoaded', loadData);
+
+    async function loadData() {
+        try {
+            const res = await fetch(API_URL);
+            allData = await res.json();
+            renderTables();
+        } catch (e) {
+            console.error("Error al obtener datos:", e);
+        }
+    }
+
+    function cleanDate(str) {
+        if (!str) return "";
+        return str.toString().split('T')[0];
+    }
+
+    function renderTables() {
+        const fmt = (n) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
+        
+        // Tabla Gastos
+        document.getElementById('bodyGastos').innerHTML = allData.gastos.map(g => `
+            <tr>
+                <td>${cleanDate(g.fecha)}</td>
+                <td>${g.descripcion || ''}</td>
+                <td>${fmt(g.monto)}</td>
+                <td>
+                    <button class="btn btn-edit" onclick="openEdit('Gasto', ${g.rowId})">✎</button>
+                    <button class="btn btn-delete" onclick="deleteItem('Gasto', ${g.rowId})">✖</button>
+                </td>
+            </tr>`).join('');
+
+        // Tabla Ingresos
+        document.getElementById('bodyIngresos').innerHTML = allData.ingresos.map(i => `
+            <tr>
+                <td>${cleanDate(i.fecha)}</td>
+                <td>${i.fuente || ''}</td>
+                <td>${fmt(i.monto)}</td>
+                <td>
+                    <button class="btn btn-edit" onclick="openEdit('Ingreso', ${i.rowId})">✎</button>
+                    <button class="btn btn-delete" onclick="deleteItem('Ingreso', ${i.rowId})">✖</button>
+                </td>
+            </tr>`).join('');
+    }
+
+    async function deleteItem(type, id) {
+        if (!confirm(`¿Eliminar este registro definitivamente?`)) return;
+        
+        // Enviamos el índice numérico y la acción
+        const payload = { 
+            action: 'delete' + type, 
+            index: parseInt(id) 
+        };
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            if(result.success) {
+                loadData(); 
+            } else {
+                alert("Error del servidor: " + result.message);
+            }
+        } catch (e) {
+            alert("Error de conexión al eliminar.");
+        }
+    }
+
+    function openEdit(type, id) {
+        const list = allData[type.toLowerCase() + 's'];
+        const item = list.find(i => i.rowId === id);
+        
+        document.getElementById('editIndex').value = id;
+        document.getElementById('editType').value = 'update' + type;
+        
+        let html = '';
+        Object.keys(item).forEach(key => {
+            if (key === 'rowId') return;
+            const isDate = key.toLowerCase().includes('fecha');
+            const val = isDate ? cleanDate(item[key]) : item[key];
+            
+            html += `
+                <div class="form-group">
+                    <label>${key.toUpperCase()}</label>
+                    <input name="${key}" type="${isDate ? 'date' : (typeof val === 'number' ? 'number' : 'text')}" value="${val}">
+                </div>`;
         });
+        
+        document.getElementById('editFields').innerHTML = html;
+        document.getElementById('modalEdit').style.display = 'flex';
+    }
 
-        async function loadData() {
-            try {
-                const res = await fetch(API_URL);
-                allData = await res.json();
-                renderAll();
-            } catch (e) { alert("Error al conectar con la base de datos"); }
-        }
+    document.getElementById('formEdit').onsubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const payload = Object.fromEntries(formData.entries());
+        
+        payload.action = document.getElementById('editType').value;
+        payload.index = parseInt(document.getElementById('editIndex').value);
 
-        function cleanDate(dateStr) {
-            if (!dateStr) return "";
-            // Si viene formato ISO largo (2026-01-19T05:00:00Z), tomar solo los primeros 10 caracteres
-            return dateStr.toString().substring(0, 10);
-        }
-
-        function renderAll() {
-            renderTable('bodyGastos', allData.gastos, 'Gasto');
-            renderTable('bodyIngresos', allData.ingresos, 'Ingreso');
-            renderTable('bodyCDTs', allData.cdts, 'CDT');
-            updateDashboard();
-        }
-
-        function renderTable(containerId, data, type) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = data.map(item => {
-                const keys = Object.keys(item).filter(k => k !== 'rowId');
-                let row = '<tr>';
-                keys.forEach(k => {
-                    let val = item[k];
-                    if(k.toLowerCase().includes('fecha') || k === 'inicio' || k === 'fin') val = cleanDate(val);
-                    if(typeof val === 'number' && k !== 'tasa') val = formatMoney(val);
-                    row += `<td>${val}</td>`;
-                });
-                row += `<td>
-                    <button class="btn btn-primary" style="padding:5px" onclick="openEdit('${type}', ${item.rowId})">✎</button>
-                    <button class="btn btn-danger" style="padding:5px" onclick="deleteItem('${type}', ${item.rowId})">✖</button>
-                </td></tr>`;
-                return row;
-            }).join('');
-        }
-
-        function showTab(name) {
-            document.querySelectorAll('.tab-content, .tab').forEach(el => el.classList.remove('active'));
-            document.getElementById(name).classList.add('active');
-            event.target.classList.add('active');
-        }
-
-        async function deleteItem(type, id) {
-            if(!confirm("¿Eliminar este registro?")) return;
-            await send({ action: 'delete' + type, index: id });
-        }
-
-        function openEdit(type, id) {
-            const list = allData[type.toLowerCase() + 's'];
-            const item = list.find(i => i.rowId === id);
-            const fields = document.getElementById('editFields');
-            document.getElementById('editIndex').value = id;
-            document.getElementById('editType').value = 'update' + type;
-            
-            let html = '';
-            Object.keys(item).forEach(k => {
-                if(k === 'rowId') return;
-                let val = item[k];
-                let inputType = "text";
-                if(k.toLowerCase().includes('fecha') || k === 'fin') {
-                    val = cleanDate(val);
-                    inputType = "date";
-                } else if(typeof val === 'number') {
-                    inputType = "number";
-                }
-                html += `<div class="form-group"><label>${k}</label><input name="${k}" type="${inputType}" value="${val}"></div>`;
-            });
-            fields.innerHTML = html;
-            document.getElementById('modalEdit').style.display = 'flex';
-        }
-
-        function closeModal() { document.getElementById('modalEdit').style.display = 'none'; }
-
-        async function send(payload) {
-            try {
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const result = await res.json();
-                if(result.success) loadData();
-            } catch (e) { alert("Error en la operación"); }
-        }
-
-        function setupForms() {
-            document.getElementById('formGasto').onsubmit = e => {
-                e.preventDefault();
-                send({
-                    action: 'addGasto',
-                    fecha: document.getElementById('gastoFecha').value,
-                    descripcion: document.getElementById('gastoDesc').value,
-                    categoria: document.getElementById('gastoCategoria').value,
-                    monto: Number(document.getElementById('gastoMonto').value),
-                    pago: document.getElementById('gastoPago').value
-                });
-                e.target.reset();
-            };
-
-            document.getElementById('formIngreso').onsubmit = e => {
-                e.preventDefault();
-                send({
-                    action: 'addIngreso',
-                    fecha: document.getElementById('ingresoFecha').value,
-                    descripcion: document.getElementById('ingresoDesc').value,
-                    monto: Number(document.getElementById('ingresoMonto').value),
-                    fuente: document.getElementById('ingresoFuente').value
-                });
-                e.target.reset();
-            };
-
-            document.getElementById('formEdit').onsubmit = e => {
-                e.preventDefault();
-                const formData = new FormData(e.target);
-                const payload = Object.fromEntries(formData.entries());
-                payload.action = document.getElementById('editType').value;
-                payload.index = document.getElementById('editIndex').value;
+        try {
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+            const result = await res.json();
+            if(result.success) {
                 closeModal();
-                send(payload);
-            };
+                loadData();
+            } else {
+                alert("Error al actualizar: " + result.message);
+            }
+        } catch (e) {
+            alert("Error de red al actualizar.");
         }
+    };
 
-        function formatMoney(n) { return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n); }
+    function showTab(id) {
+        document.querySelectorAll('.tab-content, .tab').forEach(el => el.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        event.target.classList.add('active');
+    }
 
-        function updateDashboard() {
-            const tg = allData.gastos.reduce((s, i) => s + i.monto, 0);
-            const ti = allData.ingresos.reduce((s, i) => s + i.monto, 0);
-            const tc = allData.cdts.reduce((s, i) => s + i.monto, 0);
-            
-            document.getElementById('totalGastos').innerText = formatMoney(tg);
-            document.getElementById('totalIngresos').innerText = formatMoney(ti);
-            document.getElementById('balance').innerText = formatMoney(ti - tg);
-            document.getElementById('totalCDTs').innerText = formatMoney(tc);
+    function closeModal() { document.getElementById('modalEdit').style.display = 'none'; }
+</script>
 
-            if(chart1) chart1.destroy();
-            chart1 = new Chart(document.getElementById('chartCategories'), {
-                type: 'doughnut',
-                data: {
-                    labels: ['Ingresos', 'Gastos'],
-                    datasets: [{ data: [ti, tg], backgroundColor: ['#38ef7d', '#ff4d4d'] }]
-                }
-            });
-        }
-    </script>
 </body>
 </html>
