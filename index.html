@@ -139,4 +139,149 @@
             </div>
             <table>
                 <thead><tr><th>Banco</th><th>Monto</th><th>Tasa</th><th>Fin</th><th>Acciones</th></tr></thead>
-                <tbody id="t-cdts
+                <tbody id="t-cdts"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="modalEdit" class="modal">
+    <div class="modal-content">
+        <h3>Editar Registro</h3><br>
+        <form id="f-edit" onsubmit="update(event)">
+            <input type="hidden" name="index">
+            <input type="hidden" name="action">
+            <div id="edit-fields"></div>
+            <br>
+            <button class="btn btn-add">Actualizar</button>
+            <button type="button" class="btn btn-del" onclick="closeModal()" style="width:100%; margin-top:5px;">Cancelar</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbw2GtG5vsvvpg2dfNMnBFmiEOco6oiv7wOwhuQD3iJmxWh73PwrhU7W_OeqSZXWr7Rf/exec';
+    let localData = { gastos: [], ingresos: [], cdts: [] };
+    let chart1, chart2;
+
+    async function init() {
+        try {
+            const res = await fetch(API_URL);
+            localData = await res.json();
+            renderAll();
+            document.getElementById('loader').innerText = 'Actualizado ahora';
+        } catch (e) {
+            alert('Error cargando datos: ' + e);
+        }
+    }
+
+    function showTab(id, btn) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    function renderAll() {
+        const fmt = (n) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits:0 }).format(n);
+        
+        // Tablas
+        fillTable('t-gastos', localData.gastos, ['fecha', 'descripcion', 'categoria', 'monto'], 'Gasto');
+        fillTable('t-ingresos', localData.ingresos, ['fecha', 'descripcion', 'monto'], 'Ingreso');
+        fillTable('t-cdts', localData.cdts, ['banco', 'monto', 'tasa', 'fin'], 'CDT');
+
+        // Dashboard
+        const sum = (arr) => arr.reduce((a, b) => a + Number(b.monto), 0);
+        const tg = sum(localData.gastos);
+        const ti = sum(localData.ingresos);
+        const tc = sum(localData.cdts);
+
+        document.getElementById('d-gastos').innerText = fmt(tg);
+        document.getElementById('d-ingresos').innerText = fmt(ti);
+        document.getElementById('d-balance').innerText = fmt(ti - tg);
+        document.getElementById('d-cdts').innerText = fmt(tc);
+
+        renderCharts(localData.gastos, ti, tg);
+    }
+
+    function fillTable(id, data, fields, type) {
+        const body = document.getElementById(id);
+        body.innerHTML = data.map((item, i) => `
+            <tr>
+                ${fields.map(f => `<td>${f === 'monto' ? item[f] : item[f]}</td>`).join('')}
+                <td>
+                    <button class="btn btn-edit" onclick="openEdit('${type}', ${i})">✎</button>
+                    <button class="btn btn-del" onclick="del('${type}', ${item.rowId})">✖</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function save(e, action) {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const data = Object.fromEntries(fd);
+        data.action = action;
+        await send(data);
+        e.target.reset();
+    }
+
+    async function del(type, rowId) {
+        if(confirm('¿Eliminar?')) await send({ action: `delete${type}`, index: rowId });
+    }
+
+    function openEdit(type, i) {
+        const item = localData[type.toLowerCase() + 's'][i];
+        const fields = document.getElementById('edit-fields');
+        const form = document.getElementById('f-edit');
+        form.action.value = `update${type}`;
+        form.index.value = item.rowId;
+        
+        let html = '';
+        for(let key in item) {
+            if(key === 'rowId') continue;
+            html += `<label>${key}</label><input name="${key}" value="${item[key]}" ${key.includes('monto')?'type="number"':(key.includes('fecha')?'type="date"':'')}>`;
+        }
+        fields.innerHTML = html;
+        document.getElementById('modalEdit').style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('modalEdit').style.display = 'none'; }
+
+    async function update(e) {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target));
+        await send(data);
+        closeModal();
+    }
+
+    async function send(data) {
+        document.getElementById('loader').innerText = 'Enviando...';
+        await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
+        init();
+    }
+
+    function renderCharts(gastos, ti, tg) {
+        if(chart1) chart1.destroy();
+        if(chart2) chart2.destroy();
+
+        const cats = {};
+        gastos.forEach(g => cats[g.categoria] = (cats[g.categoria] || 0) + Number(g.monto));
+
+        chart1 = new Chart(document.getElementById('chartPie'), {
+            type: 'doughnut',
+            data: { labels: Object.keys(cats), datasets: [{ data: Object.values(cats), backgroundColor: ['#667eea','#764ba2','#38ef7d','#f1c40f','#e74c3c'] }] },
+            options: { plugins: { title: { display:true, text: 'Gastos por Categoría' } } }
+        });
+
+        chart2 = new Chart(document.getElementById('chartBar'), {
+            type: 'bar',
+            data: { labels: ['Ingresos', 'Gastos'], datasets: [{ data: [ti, tg], backgroundColor: ['#38ef7d', '#ff4b2b'] }] },
+            options: { plugins: { title: { display:true, text: 'Balance General' } } }
+        });
+    }
+
+    init();
+</script>
+</body>
+</html>
