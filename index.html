@@ -3,53 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Financiero Pro</title>
+    <title>Sistema Financiero Personal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
-        :root { --primary: #667eea; --secondary: #764ba2; --success: #38ef7d; --danger: #ff4b2b; --bg: #f4f7f6; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
+        :root { --primary: #4361ee; --success: #4cc9f0; --danger: #f72585; --dark: #3f37c9; --light: #f8f9fa; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #eef2f7; margin: 0; padding: 20px; }
+        .container { max-width: 1100px; margin: auto; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
         
-        .header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 30px; text-align: center; }
-        
-        .tabs { display: flex; background: #eee; border-bottom: 2px solid #ddd; }
-        .tab { flex: 1; padding: 15px; border: none; cursor: pointer; font-weight: bold; color: #666; transition: 0.3s; }
+        .header { background: var(--dark); color: white; padding: 20px; text-align: center; }
+        .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 0.8em; margin-top: 10px; }
+        .online { background: #06d6a0; }
+        .offline { background: var(--danger); }
+
+        .tabs { display: flex; background: #f1f3f5; border-bottom: 1px solid #ddd; }
+        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; color: #666; transition: 0.3s; }
         .tab.active { background: white; color: var(--primary); border-bottom: 3px solid var(--primary); }
-        
-        .content { padding: 25px; }
+
+        .content { padding: 30px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* Dashboard */
-        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .card { padding: 20px; border-radius: 10px; color: white; text-align: center; }
-        .card.g { background: var(--danger); }
-        .card.i { background: var(--success); }
-        .card.b { background: var(--primary); }
-        .card.c { background: #f39c12; }
-        .card h3 { font-size: 0.9rem; opacity: 0.8; }
-        .card p { font-size: 1.5rem; font-weight: bold; }
+        .grid-dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #eee; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .stat-card h3 { margin: 0; font-size: 0.9em; color: #888; text-transform: uppercase; }
+        .stat-card p { margin: 10px 0 0; font-size: 1.6em; font-weight: bold; color: #333; }
 
-        .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .chart-box { background: #fff; border: 1px solid #eee; padding: 15px; border-radius: 10px; }
+        form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 10px; }
+        input, select, button { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+        button { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { opacity: 0.9; }
 
-        /* Formularios y Tablas */
-        .form-box { background: #f9f9f9; padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #eee; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
-        .btn-add { background: var(--primary); width: 100%; margin-top: 15px; }
-        .btn-edit { background: #f1c40f; color: #333; margin-right: 5px; }
-        .btn-del { background: var(--danger); }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #f4f4f4; padding: 12px; text-align: left; font-size: 0.9rem; }
-        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-
-        /* Modal */
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; }
-        .modal-content { background:white; padding:25px; border-radius:10px; width:400px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px; background: #f8f9fa; border-bottom: 2px solid #eee; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+        .btn-del { background: #ff4d4d; padding: 5px 10px; font-size: 12px; }
+        
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: none; margin: auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -57,231 +47,167 @@
 <div class="container">
     <div class="header">
         <h1>Mi Control Financiero</h1>
-        <p id="loader">Cargando datos...</p>
+        <div id="status" class="status-badge offline">Cargando Sistema...</div>
     </div>
 
     <div class="tabs">
-        <button class="tab active" onclick="showTab('tab-dash', this)">📊 Dashboard</button>
-        <button class="tab" onclick="showTab('tab-gastos', this)">💸 Gastos</button>
-        <button class="tab" onclick="showTab('tab-ingresos', this)">💵 Ingresos</button>
-        <button class="tab" onclick="showTab('tab-cdts', this)">🏦 CDTs</button>
+        <div class="tab active" onclick="showTab('dash', this)">📊 Dashboard</div>
+        <div class="tab" onclick="showTab('gastos', this)">💸 Gastos</div>
+        <div class="tab" onclick="showTab('ingresos', this)">💵 Ingresos</div>
+        <div class="tab" onclick="showTab('cdts', this)">🏦 CDTs</div>
     </div>
 
     <div class="content">
+        <div id="loader" class="loader"></div>
+
         <div id="tab-dash" class="tab-content active">
-            <div class="cards">
-                <div class="card g"><h3>Gastos Mes</h3><p id="d-gastos">$0</p></div>
-                <div class="card i"><h3>Ingresos Mes</h3><p id="d-ingresos">$0</p></div>
-                <div class="card b"><h3>Balance</h3><p id="d-balance">$0</p></div>
-                <div class="card c"><h3>Total CDTs</h3><p id="d-cdts">$0</p></div>
+            <div class="grid-dashboard">
+                <div class="stat-card"><h3>Gastos Totales</h3><p id="sum-gastos">$ 0</p></div>
+                <div class="stat-card"><h3>Ingresos Totales</h3><p id="sum-ingresos">$ 0</p></div>
+                <div class="stat-card"><h3>Balance</h3><p id="sum-balance">$ 0</p></div>
+                <div class="stat-card"><h3>Inversión CDTs</h3><p id="sum-cdts">$ 0</p></div>
             </div>
-            <div class="charts">
-                <div class="chart-box"><canvas id="chartPie"></canvas></div>
-                <div class="chart-box"><canvas id="chartBar"></canvas></div>
+            <div style="max-width: 500px; margin: auto;">
+                <canvas id="mainChart"></canvas>
             </div>
         </div>
 
         <div id="tab-gastos" class="tab-content">
-            <div class="form-box">
-                <form id="f-gastos" onsubmit="save(event, 'addGasto')">
-                    <div class="form-grid">
-                        <input type="date" name="fecha" required>
-                        <input type="text" name="descripcion" placeholder="Descripción" required>
-                        <select name="categoria">
-                            <option value="Comida">Comida</option>
-                            <option value="Servicios">Servicios</option>
-                            <option value="Transporte">Transporte</option>
-                            <option value="Salud">Salud</option>
-                            <option value="Otro">Otro</option>
-                        </select>
-                        <input type="number" name="monto" placeholder="Monto" required>
-                        <input type="text" name="pago" placeholder="Método Pago">
-                    </div>
-                    <button class="btn btn-add">Registrar Gasto</button>
-                </form>
-            </div>
-            <table>
-                <thead><tr><th>Fecha</th><th>Desc</th><th>Cat</th><th>Monto</th><th>Acciones</th></tr></thead>
-                <tbody id="t-gastos"></tbody>
+            <form onsubmit="handleAction(event, 'addGasto')">
+                <input type="date" name="fecha" required>
+                <input type="text" name="descripcion" placeholder="¿En qué gastaste?" required>
+                <select name="categoria">
+                    <option value="Comida">Comida</option>
+                    <option value="Servicios">Servicios</option>
+                    <option value="Transporte">Transporte</option>
+                    <option value="Ocio">Ocio</option>
+                </select>
+                <input type="number" name="monto" placeholder="Monto $" required>
+                <button type="submit">Guardar Gasto</button>
+            </form>
+            <table id="t-gastos">
+                <thead><tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Acción</th></tr></thead>
+                <tbody></tbody>
             </table>
         </div>
 
         <div id="tab-ingresos" class="tab-content">
-            <div class="form-box">
-                <form id="f-ingresos" onsubmit="save(event, 'addIngreso')">
-                    <div class="form-grid">
-                        <input type="date" name="fecha" required>
-                        <input type="text" name="descripcion" placeholder="Descripción" required>
-                        <input type="number" name="monto" placeholder="Monto" required>
-                        <input type="text" name="fuente" placeholder="Fuente">
-                    </div>
-                    <button class="btn btn-add">Registrar Ingreso</button>
-                </form>
-            </div>
-            <table>
-                <thead><tr><th>Fecha</th><th>Desc</th><th>Monto</th><th>Acciones</th></tr></thead>
-                <tbody id="t-ingresos"></tbody>
+            <form onsubmit="handleAction(event, 'addIngreso')">
+                <input type="date" name="fecha" required>
+                <input type="text" name="descripcion" placeholder="Fuente de ingreso" required>
+                <input type="number" name="monto" placeholder="Monto $" required>
+                <button type="submit" style="background: #27ae60;">Guardar Ingreso</button>
+            </form>
+            <table id="t-ingresos">
+                <thead><tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Acción</th></tr></thead>
+                <tbody></tbody>
             </table>
         </div>
 
         <div id="tab-cdts" class="tab-content">
-            <div class="form-box">
-                <form id="f-cdts" onsubmit="save(event, 'addCDT')">
-                    <div class="form-grid">
-                        <input type="text" name="banco" placeholder="Banco" required>
-                        <input type="number" name="monto" placeholder="Monto" required>
-                        <input type="number" step="0.01" name="tasa" placeholder="Tasa %" required>
-                        <input type="date" name="inicio" required>
-                        <input type="date" name="fin" required>
-                    </div>
-                    <button class="btn btn-add">Registrar CDT</button>
-                </form>
-            </div>
-            <table>
-                <thead><tr><th>Banco</th><th>Monto</th><th>Tasa</th><th>Fin</th><th>Acciones</th></tr></thead>
-                <tbody id="t-cdts"></tbody>
+            <form onsubmit="handleAction(event, 'addCDT')">
+                <input type="text" name="banco" placeholder="Banco" required>
+                <input type="number" name="monto" placeholder="Monto $" required>
+                <input type="number" step="0.01" name="tasa" placeholder="Tasa %" required>
+                <input type="date" name="inicio" required>
+                <input type="date" name="fin" required>
+                <button type="submit" style="background: #f39c12;">Crear CDT</button>
+            </form>
+            <table id="t-cdts">
+                <thead><tr><th>Banco</th><th>Monto</th><th>Vencimiento</th><th>Acción</th></tr></thead>
+                <tbody></tbody>
             </table>
         </div>
-    </div>
-</div>
-
-<div id="modalEdit" class="modal">
-    <div class="modal-content">
-        <h3>Editar Registro</h3><br>
-        <form id="f-edit" onsubmit="update(event)">
-            <input type="hidden" name="index">
-            <input type="hidden" name="action">
-            <div id="edit-fields"></div>
-            <br>
-            <button class="btn btn-add">Actualizar</button>
-            <button type="button" class="btn btn-del" onclick="closeModal()" style="width:100%; margin-top:5px;">Cancelar</button>
-        </form>
     </div>
 </div>
 
 <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbw2GtG5vsvvpg2dfNMnBFmiEOco6oiv7wOwhuQD3iJmxWh73PwrhU7W_OeqSZXWr7Rf/exec';
-    let localData = { gastos: [], ingresos: [], cdts: [] };
-    let chart1, chart2;
+    let rawData = {};
+    let myChart;
 
-    async function init() {
+    async function loadData() {
+        document.getElementById('loader').style.display = 'block';
         try {
-            const res = await fetch(API_URL);
-            localData = await res.json();
-            renderAll();
-            document.getElementById('loader').innerText = 'Actualizado ahora';
-        } catch (e) {
-            alert('Error cargando datos: ' + e);
+            const resp = await fetch(API_URL);
+            rawData = await resp.json();
+            updateInterface();
+            document.getElementById('status').innerText = 'CONECTADO';
+            document.getElementById('status').className = 'status-badge online';
+        } catch(e) {
+            document.getElementById('status').innerText = 'ERROR DE CONEXIÓN';
+            document.getElementById('status').className = 'status-badge offline';
         }
+        document.getElementById('loader').style.display = 'none';
     }
 
-    function showTab(id, btn) {
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        btn.classList.add('active');
-    }
-
-    function renderAll() {
-        const fmt = (n) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits:0 }).format(n);
+    function updateInterface() {
+        const fmt = (n) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
         
-        // Tablas
-        fillTable('t-gastos', localData.gastos, ['fecha', 'descripcion', 'categoria', 'monto'], 'Gasto');
-        fillTable('t-ingresos', localData.ingresos, ['fecha', 'descripcion', 'monto'], 'Ingreso');
-        fillTable('t-cdts', localData.cdts, ['banco', 'monto', 'tasa', 'fin'], 'CDT');
+        const sumG = rawData.gastos.reduce((a, b) => a + Number(b.monto), 0);
+        const sumI = rawData.ingresos.reduce((a, b) => a + Number(b.monto), 0);
+        const sumC = rawData.cdts.reduce((a, b) => a + Number(b.monto), 0);
 
-        // Dashboard
-        const sum = (arr) => arr.reduce((a, b) => a + Number(b.monto), 0);
-        const tg = sum(localData.gastos);
-        const ti = sum(localData.ingresos);
-        const tc = sum(localData.cdts);
+        document.getElementById('sum-gastos').innerText = fmt(sumG);
+        document.getElementById('sum-ingresos').innerText = fmt(sumI);
+        document.getElementById('sum-balance').innerText = fmt(sumI - sumG);
+        document.getElementById('sum-cdts').innerText = fmt(sumC);
 
-        document.getElementById('d-gastos').innerText = fmt(tg);
-        document.getElementById('d-ingresos').innerText = fmt(ti);
-        document.getElementById('d-balance').innerText = fmt(ti - tg);
-        document.getElementById('d-cdts').innerText = fmt(tc);
-
-        renderCharts(localData.gastos, ti, tg);
+        renderTable('t-gastos', rawData.gastos, ['fecha', 'descripcion', 'monto'], 'Gasto');
+        renderTable('t-ingresos', rawData.ingresos, ['fecha', 'descripcion', 'monto'], 'Ingreso');
+        renderTable('t-cdts', rawData.cdts, ['banco', 'monto', 'fin'], 'CDT');
+        
+        updateChart(sumI, sumG);
     }
 
-    function fillTable(id, data, fields, type) {
-        const body = document.getElementById(id);
-        body.innerHTML = data.map((item, i) => `
+    function renderTable(id, data, fields, type) {
+        const tbody = document.querySelector(`#${id} tbody`);
+        tbody.innerHTML = data.map(item => `
             <tr>
-                ${fields.map(f => `<td>${f === 'monto' ? item[f] : item[f]}</td>`).join('')}
-                <td>
-                    <button class="btn btn-edit" onclick="openEdit('${type}', ${i})">✎</button>
-                    <button class="btn btn-del" onclick="del('${type}', ${item.rowId})">✖</button>
-                </td>
+                ${fields.map(f => `<td>${item[f] || '-'}</td>`).join('')}
+                <td><button class="btn-del" onclick="deleteRow('${type}', ${item.rowId})">Borrar</button></td>
             </tr>
         `).join('');
     }
 
-    async function save(e, action) {
-        e.preventDefault();
-        const fd = new FormData(e.target);
-        const data = Object.fromEntries(fd);
-        data.action = action;
-        await send(data);
-        e.target.reset();
-    }
-
-    async function del(type, rowId) {
-        if(confirm('¿Eliminar?')) await send({ action: `delete${type}`, index: rowId });
-    }
-
-    function openEdit(type, i) {
-        const item = localData[type.toLowerCase() + 's'][i];
-        const fields = document.getElementById('edit-fields');
-        const form = document.getElementById('f-edit');
-        form.action.value = `update${type}`;
-        form.index.value = item.rowId;
-        
-        let html = '';
-        for(let key in item) {
-            if(key === 'rowId') continue;
-            html += `<label>${key}</label><input name="${key}" value="${item[key]}" ${key.includes('monto')?'type="number"':(key.includes('fecha')?'type="date"':'')}>`;
-        }
-        fields.innerHTML = html;
-        document.getElementById('modalEdit').style.display = 'flex';
-    }
-
-    function closeModal() { document.getElementById('modalEdit').style.display = 'none'; }
-
-    async function update(e) {
+    async function handleAction(e, action) {
         e.preventDefault();
         const data = Object.fromEntries(new FormData(e.target));
-        await send(data);
-        closeModal();
-    }
-
-    async function send(data) {
-        document.getElementById('loader').innerText = 'Enviando...';
+        data.action = action;
+        
+        document.getElementById('loader').style.display = 'block';
         await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
-        init();
+        e.target.reset();
+        await loadData();
     }
 
-    function renderCharts(gastos, ti, tg) {
-        if(chart1) chart1.destroy();
-        if(chart2) chart2.destroy();
+    async function deleteRow(type, id) {
+        if(!confirm('¿Eliminar registro?')) return;
+        document.getElementById('loader').style.display = 'block';
+        await fetch(API_URL, { method: 'POST', body: JSON.stringify({action: 'delete' + type, index: id}) });
+        await loadData();
+    }
 
-        const cats = {};
-        gastos.forEach(g => cats[g.categoria] = (cats[g.categoria] || 0) + Number(g.monto));
+    function showTab(name, el) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + name).classList.add('active');
+        el.classList.add('active');
+    }
 
-        chart1 = new Chart(document.getElementById('chartPie'), {
+    function updateChart(i, g) {
+        if(myChart) myChart.destroy();
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        myChart = new Chart(ctx, {
             type: 'doughnut',
-            data: { labels: Object.keys(cats), datasets: [{ data: Object.values(cats), backgroundColor: ['#667eea','#764ba2','#38ef7d','#f1c40f','#e74c3c'] }] },
-            options: { plugins: { title: { display:true, text: 'Gastos por Categoría' } } }
-        });
-
-        chart2 = new Chart(document.getElementById('chartBar'), {
-            type: 'bar',
-            data: { labels: ['Ingresos', 'Gastos'], datasets: [{ data: [ti, tg], backgroundColor: ['#38ef7d', '#ff4b2b'] }] },
-            options: { plugins: { title: { display:true, text: 'Balance General' } } }
+            data: {
+                labels: ['Ingresos', 'Gastos'],
+                datasets: [{ data: [i, g], backgroundColor: ['#06d6a0', '#f72585'] }]
+            }
         });
     }
 
-    init();
+    loadData();
 </script>
 </body>
 </html>
