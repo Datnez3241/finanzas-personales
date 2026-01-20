@@ -3,191 +3,357 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Financiero Pro</title>
+    <title>Mi Control Financiero</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
-        :root { --primary: #667eea; --secondary: #764ba2; --success: #38ef7d; --danger: #ff4d4d; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: linear-gradient(135deg, var(--primary), var(--secondary)); min-height: 100vh; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; }
-        .header { background: #fff; padding: 20px; text-align: center; border-bottom: 2px solid #eee; }
-        .tabs { display: flex; background: #f8f9fa; }
-        .tab { flex: 1; padding: 15px; border: none; cursor: pointer; font-weight: bold; color: #666; transition: 0.3s; }
-        .tab.active { background: white; color: var(--primary); border-bottom: 3px solid var(--primary); }
-        .content { padding: 20px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .tabs { display: flex; background: #f8f9fa; border-bottom: 2px solid #e9ecef; overflow-x: auto; }
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 1em;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .tab.active { color: #667eea; border-bottom: 3px solid #667eea; background: white; }
+        .content { padding: 30px; }
         .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .card { padding: 20px; border-radius: 10px; color: white; background: var(--primary); }
-        .card.green { background: var(--success); }
-        .card.red { background: var(--danger); }
-        .form-container { background: #f9f9f9; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #eee; }
-        .form-group { margin-bottom: 10px; }
-        .form-group label { display: block; font-size: 0.9em; margin-bottom: 5px; }
-        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; }
-        .btn-add { background: var(--primary); }
-        .btn-edit { background: #f0ad4e; padding: 5px 10px; }
-        .btn-del { background: var(--danger); padding: 5px 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f4f4f4; }
-        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; }
-        .modal-content { background:white; padding:25px; border-radius:10px; width:400px; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+        }
+        .card.green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .card.blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .card.orange { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .chart-container { background: #f8f9fa; padding: 20px; border-radius: 15px; }
+        .form-container { background: #f8f9fa; padding: 30px; border-radius: 15px; max-width: 600px; margin-bottom: 30px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-danger { background: #ff4d4d; color: white; margin-left: 5px; }
+        .table-container { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th { background: #667eea; color: white; padding: 12px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;
+        }
+        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header"><h1>💰 Mi Control Financiero</h1></div>
-    <div class="tabs">
-        <button class="tab active" onclick="showTab('tab-dash', event)">Dashboard</button>
-        <button class="tab" onclick="showTab('tab-gastos', event)">Gastos</button>
-        <button class="tab" onclick="showTab('tab-ingresos', event)">Ingresos</button>
-    </div>
-
-    <div class="content">
-        <div id="tab-dash" class="tab-content active">
-            <div class="cards-grid">
-                <div class="card"><h4>Gastos</h4><h2 id="dash-gastos">$0</h2></div>
-                <div class="card green"><h4>Ingresos</h4><h2 id="dash-ingresos">$0</h2></div>
-                <div class="card"><h4>Balance</h4><h2 id="dash-balance">$0</h2></div>
-            </div>
-            <canvas id="chartMain" height="100"></canvas>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Mi Control Financiero</h1>
+            <p>Dashboard Interactivo</p>
         </div>
 
-        <div id="tab-gastos" class="tab-content">
-            <div class="form-container">
-                <form id="form-gasto">
-                    <div class="form-group"><label>Fecha</label><input type="date" name="fecha" required></div>
-                    <div class="form-group"><label>Descripción</label><input type="text" name="descripcion" required></div>
-                    <div class="form-group"><label>Monto</label><input type="number" name="monto" required></div>
-                    <button type="submit" class="btn btn-add">Guardar Gasto</button>
-                </form>
-            </div>
-            <table id="table-gastos">
-                <thead><tr><th>Fecha</th><th>Desc.</th><th>Monto</th><th>Acciones</th></tr></thead>
-                <tbody></tbody>
-            </table>
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('dashboard', event)">📊 Dashboard</button>
+            <button class="tab" onclick="showTab('gastos', event)">💸 Gastos</button>
+            <button class="tab" onclick="showTab('ingresos', event)">💵 Ingresos</button>
+            <button class="tab" onclick="showTab('cdts', event)">🏦 CDTs</button>
         </div>
 
-        <div id="tab-ingresos" class="tab-content">
-            <div class="form-container">
-                <form id="form-ingreso">
-                    <div class="form-group"><label>Fecha</label><input type="date" name="fecha" required></div>
-                    <div class="form-group"><label>Descripción</label><input type="text" name="descripcion" required></div>
-                    <div class="form-group"><label>Monto</label><input type="number" name="monto" required></div>
-                    <button type="submit" class="btn btn-add">Guardar Ingreso</button>
-                </form>
+        <div class="content">
+            <div id="dashboard" class="tab-content active">
+                <div class="cards-grid">
+                    <div class="card"><h3>Gastos</h3><div class="amount" id="totalGastos">$0</div></div>
+                    <div class="card green"><h3>Ingresos</h3><div class="amount" id="totalIngresos">$0</div></div>
+                    <div class="card blue"><h3>Balance</h3><div class="amount" id="balance">$0</div></div>
+                    <div class="card orange"><h3>CDTs</h3><div class="amount" id="totalCDTs">$0</div></div>
+                </div>
+                <div class="charts-grid">
+                    <div class="chart-container"><canvas id="chartCategories"></canvas></div>
+                </div>
             </div>
-            <table id="table-ingresos">
-                <thead><tr><th>Fecha</th><th>Desc.</th><th>Monto</th><th>Acciones</th></tr></thead>
-                <tbody></tbody>
-            </table>
+
+            <div id="gastos" class="tab-content">
+                <div class="form-container">
+                    <h3>Registrar Gasto</h3>
+                    <form id="formGasto">
+                        <div class="form-group"><label>Fecha</label><input type="date" id="gastoFecha" required></div>
+                        <div class="form-group"><label>Descripción</label><input type="text" id="gastoDesc" required></div>
+                        <div class="form-group">
+                            <label>Categoría</label>
+                            <select id="gastoCategoria">
+                                <option value="Comida">Comida</option>
+                                <option value="Transporte">Transporte</option>
+                                <option value="Servicios">Servicios</option>
+                                <option value="Otros">Otros</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Monto</label><input type="number" id="gastoMonto" required></div>
+                        <div class="form-group"><label>Método</label><input type="text" id="gastoPago" placeholder="Nequi, Efectivo..."></div>
+                        <button type="submit" class="btn btn-primary">Guardar Gasto</button>
+                    </form>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Fecha</th><th>Desc.</th><th>Cat.</th><th>Monto</th><th>Acciones</th></tr></thead>
+                        <tbody id="bodyGastos"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="ingresos" class="tab-content">
+                <div class="form-container">
+                    <h3>Registrar Ingreso</h3>
+                    <form id="formIngreso">
+                        <div class="form-group"><label>Fecha</label><input type="date" id="ingresoFecha" required></div>
+                        <div class="form-group"><label>Descripción</label><input type="text" id="ingresoDesc" required></div>
+                        <div class="form-group"><label>Monto</label><input type="number" id="ingresoMonto" required></div>
+                        <div class="form-group"><label>Fuente</label><input type="text" id="ingresoFuente" required></div>
+                        <button type="submit" class="btn btn-primary">Guardar Ingreso</button>
+                    </form>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Fecha</th><th>Desc.</th><th>Monto</th><th>Fuente</th><th>Acciones</th></tr></thead>
+                        <tbody id="bodyIngresos"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="cdts" class="tab-content">
+                <div class="form-container">
+                    <h3>Nuevo CDT</h3>
+                    <form id="formCDT">
+                        <div class="form-group"><label>Banco</label><input type="text" id="cdtBanco" required></div>
+                        <div class="form-group"><label>Monto</label><input type="number" id="cdtMonto" required></div>
+                        <div class="form-group"><label>Tasa %</label><input type="number" step="0.1" id="cdtTasa" required></div>
+                        <div class="form-group"><label>Fecha Fin</label><input type="date" id="cdtFin" required></div>
+                        <button type="submit" class="btn btn-primary">Guardar CDT</button>
+                    </form>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Banco</th><th>Monto</th><th>Tasa</th><th>Vence</th><th>Acciones</th></tr></thead>
+                        <tbody id="bodyCDTs"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="modalEdit" class="modal">
-    <div class="modal-content">
-        <h3>Editar Registro</h3><br>
-        <form id="form-edit">
-            <input type="hidden" name="index">
-            <input type="hidden" name="action">
-            <div id="edit-fields"></div><br>
-            <button type="submit" class="btn btn-add">Actualizar</button>
-            <button type="button" class="btn btn-del" onclick="closeModal()">Cerrar</button>
-        </form>
+    <div id="modalEdit" class="modal">
+        <div class="modal-content">
+            <h3 id="editTitle">Editar Registro</h3>
+            <form id="formEdit">
+                <input type="hidden" id="editIndex">
+                <input type="hidden" id="editType">
+                <div id="editFields"></div>
+                <div style="margin-top:20px">
+                    <button type="submit" class="btn btn-primary">Actualizar</button>
+                    <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
-<script>
-    const API_URL = 'ESCRIBE_AQUI_TU_URL_DE_GOOGLE_SCRIPT';
-    let localData = {};
-    let myChart;
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbw2GtG5vsvvpg2dfNMnBFmiEOco6oiv7wOwhuQD3iJmxWh73PwrhU7W_OeqSZXWr7Rf/exec';
 
-    async function loadData() {
-        const res = await fetch(API_URL);
-        localData = await res.json();
-        render();
-    }
+        let allData = { gastos: [], ingresos: [], cdts: [] };
+        let chart1;
 
-    function render() {
-        fillTable('table-gastos', localData.gastos, 'Gasto');
-        fillTable('table-ingresos', localData.ingresos, 'Ingreso');
-        updateDash();
-    }
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            setupForms();
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('input[type="date"]').forEach(i => i.value = today);
+        });
 
-    function fillTable(id, data, type) {
-        const tbody = document.querySelector(`#${id} tbody`);
-        tbody.innerHTML = data.map(item => `
-            <tr>
-                <td>${item.fecha ? item.fecha.substring(0,10) : ''}</td>
-                <td>${item.descripcion}</td>
-                <td>$${Number(item.monto).toLocaleString()}</td>
-                <td>
-                    <button class="btn btn-edit" onclick="openEdit('${type}', ${item.rowId})">✎</button>
-                    <button class="btn btn-del" onclick="handleAction('delete${type}', ${item.rowId})">✖</button>
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    async function handleAction(action, index, extraData = {}) {
-        const payload = { action, index, ...extraData };
-        await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-        loadData();
-    }
-
-    function openEdit(type, rowId) {
-        const item = localData[type.toLowerCase() + 's'].find(i => i.rowId === rowId);
-        const fields = document.getElementById('edit-fields');
-        document.querySelector('[name="index"]').value = rowId;
-        document.querySelector('[name="action"]').value = 'update' + type;
-        
-        fields.innerHTML = Object.keys(item).filter(k => k !== 'rowId').map(k => `
-            <div class="form-group">
-                <label>${k}</label>
-                <input name="${k}" type="${k==='fecha'?'date':'text'}" value="${k==='fecha'?item[k].substring(0,10):item[k]}">
-            </div>
-        `).join('');
-        document.getElementById('modalEdit').style.display = 'flex';
-    }
-
-    // Event Listeners
-    document.querySelectorAll('form').forEach(form => {
-        form.onsubmit = async (e) => {
-            e.preventDefault();
-            const data = Object.fromEntries(new FormData(e.target));
-            if (form.id === 'form-gasto') await handleAction('addGasto', null, data);
-            if (form.id === 'form-ingreso') await handleAction('addIngreso', null, data);
-            if (form.id === 'form-edit') {
-                const {action, index, ...rest} = data;
-                await handleAction(action, index, rest);
-                closeModal();
-            }
-            form.reset();
+        async function loadData() {
+            try {
+                const res = await fetch(API_URL);
+                allData = await res.json();
+                renderAll();
+            } catch (e) { alert("Error al conectar con la base de datos"); }
         }
-    });
 
-    function updateDash() {
-        const sumG = localData.gastos.reduce((a, b) => a + Number(b.monto), 0);
-        const sumI = localData.ingresos.reduce((a, b) => a + Number(b.monto), 0);
-        document.getElementById('dash-gastos').innerText = '$' + sumG.toLocaleString();
-        document.getElementById('dash-ingresos').innerText = '$' + sumI.toLocaleString();
-        document.getElementById('dash-balance').innerText = '$' + (sumI - sumG).toLocaleString();
-    }
+        // SOLUCIÓN ERROR FECHA: Extrae solo YYYY-MM-DD
+        function cleanDate(dateStr) {
+            if (!dateStr) return "";
+            return dateStr.toString().substring(0, 10);
+        }
 
-    function showTab(id, e) {
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        e.target.classList.add('active');
-    }
+        function renderAll() {
+            renderTable('bodyGastos', allData.gastos, 'Gasto');
+            renderTable('bodyIngresos', allData.ingresos, 'Ingreso');
+            renderTable('bodyCDTs', allData.cdts, 'CDT');
+            updateDashboard();
+        }
 
-    function closeModal() { document.getElementById('modalEdit').style.display = 'none'; }
-    
-    loadData();
-</script>
+        function renderTable(containerId, data, type) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = data.map(item => {
+                const keys = Object.keys(item).filter(k => k !== 'rowId');
+                let row = '<tr>';
+                keys.forEach(k => {
+                    let val = item[k];
+                    if(k.toLowerCase().includes('fecha') || k === 'inicio' || k === 'fin') val = cleanDate(val);
+                    if(typeof val === 'number' && k !== 'tasa') val = formatMoney(val);
+                    row += `<td>${val}</td>`;
+                });
+                // SOLUCIÓN ERROR ÍNDICE: Aseguramos que rowId se pase correctamente
+                row += `<td>
+                    <button class="btn btn-primary" style="padding:5px" onclick="openEdit('${type}', ${item.rowId})">✎</button>
+                    <button class="btn btn-danger" style="padding:5px" onclick="deleteItem('${type}', ${item.rowId})">✖</button>
+                </td></tr>`;
+                return row;
+            }).join('');
+        }
+
+        function showTab(name, event) {
+            document.querySelectorAll('.tab-content, .tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(name).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        async function deleteItem(type, id) {
+            if(!confirm("¿Eliminar este registro?")) return;
+            // Enviamos index como número entero
+            await send({ action: 'delete' + type, index: parseInt(id) });
+        }
+
+        function openEdit(type, id) {
+            const list = allData[type.toLowerCase() + 's'];
+            const item = list.find(i => i.rowId === id);
+            const fields = document.getElementById('editFields');
+            document.getElementById('editIndex').value = id;
+            document.getElementById('editType').value = 'update' + type;
+            
+            let html = '';
+            Object.keys(item).forEach(k => {
+                if(k === 'rowId') return;
+                let val = item[k];
+                let inputType = "text";
+                if(k.toLowerCase().includes('fecha') || k === 'fin' || k === 'inicio') {
+                    val = cleanDate(val); // Limpiamos la fecha para el input
+                    inputType = "date";
+                } else if(typeof val === 'number') {
+                    inputType = "number";
+                }
+                html += `<div class="form-group"><label>${k}</label><input name="${k}" type="${inputType}" value="${val}"></div>`;
+            });
+            fields.innerHTML = html;
+            document.getElementById('modalEdit').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('modalEdit').style.display = 'none'; }
+
+        async function send(payload) {
+            try {
+                const res = await fetch(API_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', // Importante para evitar bloqueos de Google
+                    body: JSON.stringify(payload) 
+                });
+                // Como usamos no-cors no podemos leer la respuesta, pero recargamos datos tras 1 segundo
+                setTimeout(loadData, 1500); 
+            } catch (e) { 
+                alert("Error en la operación. Verifique la conexión.");
+            }
+        }
+
+        function setupForms() {
+            document.getElementById('formGasto').onsubmit = e => {
+                e.preventDefault();
+                send({
+                    action: 'addGasto',
+                    fecha: document.getElementById('gastoFecha').value,
+                    descripcion: document.getElementById('gastoDesc').value,
+                    categoria: document.getElementById('gastoCategoria').value,
+                    monto: Number(document.getElementById('gastoMonto').value),
+                    pago: document.getElementById('gastoPago').value
+                });
+                e.target.reset();
+            };
+
+            document.getElementById('formIngreso').onsubmit = e => {
+                e.preventDefault();
+                send({
+                    action: 'addIngreso',
+                    fecha: document.getElementById('ingresoFecha').value,
+                    descripcion: document.getElementById('ingresoDesc').value,
+                    monto: Number(document.getElementById('ingresoMonto').value),
+                    fuente: document.getElementById('ingresoFuente').value
+                });
+                e.target.reset();
+            };
+
+            document.getElementById('formEdit').onsubmit = e => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const payload = Object.fromEntries(formData.entries());
+                payload.action = document.getElementById('editType').value;
+                payload.index = parseInt(document.getElementById('editIndex').value);
+                
+                // Convertir campos numéricos de vuelta a números
+                if(payload.monto) payload.monto = Number(payload.monto);
+                if(payload.tasa) payload.tasa = Number(payload.tasa);
+
+                closeModal();
+                send(payload);
+            };
+        }
+
+        function formatMoney(n) { return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n); }
+
+        function updateDashboard() {
+            const tg = allData.gastos.reduce((s, i) => s + (Number(i.monto) || 0), 0);
+            const ti = allData.ingresos.reduce((s, i) => s + (Number(i.monto) || 0), 0);
+            const tc = allData.cdts.reduce((s, i) => s + (Number(i.monto) || 0), 0);
+            
+            document.getElementById('totalGastos').innerText = formatMoney(tg);
+            document.getElementById('totalIngresos').innerText = formatMoney(ti);
+            document.getElementById('balance').innerText = formatMoney(ti - tg);
+            document.getElementById('totalCDTs').innerText = formatMoney(tc);
+
+            if(chart1) chart1.destroy();
+            chart1 = new Chart(document.getElementById('chartCategories'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Ingresos', 'Gastos'],
+                    datasets: [{ data: [ti, tg], backgroundColor: ['#38ef7d', '#ff4d4d'] }]
+                }
+            });
+        }
+    </script>
 </body>
 </html>
