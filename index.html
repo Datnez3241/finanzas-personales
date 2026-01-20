@@ -25,8 +25,35 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 30px;
-            text-align: center;
         }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header h1 { font-size: 1.8em; }
+        
+        /* Botón de Excel */
+        .btn-sheet {
+            background: #1d8548;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .btn-sheet:hover {
+            background: #156d39;
+            transform: scale(1.05);
+        }
+
         .tabs { display: flex; background: #f8f9fa; border-bottom: 2px solid #e9ecef; overflow-x: auto; }
         .tab {
             padding: 15px 30px;
@@ -40,10 +67,12 @@
             white-space: nowrap;
         }
         .tab.active { color: #667eea; border-bottom: 3px solid #667eea; background: white; }
+        
         .content { padding: 30px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
         .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -54,19 +83,24 @@
         .card.green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
         .card.blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
         .card.orange { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        
         .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .chart-container { background: #f8f9fa; padding: 20px; border-radius: 15px; }
+        
         .form-container { background: #f8f9fa; padding: 30px; border-radius: 15px; max-width: 600px; margin-bottom: 30px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
         .form-group input, .form-group select { width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; }
+        
         .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .btn-primary { background: #667eea; color: white; }
         .btn-danger { background: #ff4d4d; color: white; margin-left: 5px; }
+        
         .table-container { overflow-x: auto; margin-top: 20px; }
         table { width: 100%; border-collapse: collapse; background: white; }
         th { background: #667eea; color: white; padding: 12px; text-align: left; }
         td { padding: 12px; border-bottom: 1px solid #eee; }
+        
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;
@@ -78,8 +112,16 @@
 
     <div class="container">
         <div class="header">
-            <h1>💰 Mi Control Financiero</h1>
-            <p>Dashboard Interactivo</p>
+            <div class="header-content">
+                <div>
+                    <h1>💰 Mi Control Financiero</h1>
+                    <p>Dashboard Interactivo</p>
+                </div>
+                <a href="https://docs.google.com/spreadsheets/d/1Yw2ZOBNbHq6b2sSABmvZr22Sm9jQSO6XZ603wlZcql0/edit#gid=791327320" 
+                   target="_blank" class="btn-sheet">
+                    <span>📊 Abrir Google Sheets</span>
+                </a>
+            </div>
         </div>
 
         <div class="tabs">
@@ -178,20 +220,19 @@
                 <input type="hidden" id="editIndex">
                 <input type="hidden" id="editType">
                 <div id="editFields"></div>
-                <div style="margin-top:20px">
+                <div style="margin-top:20px; display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn" style="background:#ccc" onclick="closeModal()">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Actualizar</button>
-                    <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // REEMPLAZA ESTA URL CON LA TUYA DE GOOGLE APPS SCRIPT
         const API_URL = 'https://script.google.com/macros/s/AKfycbw2GtG5vsvvpg2dfNMnBFmiEOco6oiv7wOwhuQD3iJmxWh73PwrhU7W_OeqSZXWr7Rf/exec';
 
         let allData = { gastos: [], ingresos: [], cdts: [] };
-        let chart1, chart2;
+        let chart1;
 
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
@@ -205,12 +246,11 @@
                 const res = await fetch(API_URL);
                 allData = await res.json();
                 renderAll();
-            } catch (e) { alert("Error al conectar con la base de datos"); }
+            } catch (e) { console.error("Error cargando datos", e); }
         }
 
         function cleanDate(dateStr) {
             if (!dateStr) return "";
-            // Si viene formato ISO largo (2026-01-19T05:00:00Z), tomar solo los primeros 10 caracteres
             return dateStr.toString().substring(0, 10);
         }
 
@@ -233,8 +273,8 @@
                     row += `<td>${val}</td>`;
                 });
                 row += `<td>
-                    <button class="btn btn-primary" style="padding:5px" onclick="openEdit('${type}', ${item.rowId})">✎</button>
-                    <button class="btn btn-danger" style="padding:5px" onclick="deleteItem('${type}', ${item.rowId})">✖</button>
+                    <button class="btn btn-primary" style="padding:5px 10px" onclick="openEdit('${type}', ${item.rowId})">✎</button>
+                    <button class="btn btn-danger" style="padding:5px 10px" onclick="deleteItem('${type}', ${item.rowId})">✖</button>
                 </td></tr>`;
                 return row;
             }).join('');
@@ -243,7 +283,7 @@
         function showTab(name) {
             document.querySelectorAll('.tab-content, .tab').forEach(el => el.classList.remove('active'));
             document.getElementById(name).classList.add('active');
-            event.target.classList.add('active');
+            event.currentTarget.classList.add('active');
         }
 
         async function deleteItem(type, id) {
@@ -263,13 +303,13 @@
                 if(k === 'rowId') return;
                 let val = item[k];
                 let inputType = "text";
-                if(k.toLowerCase().includes('fecha') || k === 'fin') {
+                if(k.toLowerCase().includes('fecha') || k === 'fin' || k === 'inicio') {
                     val = cleanDate(val);
                     inputType = "date";
                 } else if(typeof val === 'number') {
                     inputType = "number";
                 }
-                html += `<div class="form-group"><label>${k}</label><input name="${k}" type="${inputType}" value="${val}"></div>`;
+                html += `<div class="form-group"><label>${k.toUpperCase()}</label><input name="${k}" type="${inputType}" value="${val}"></div>`;
             });
             fields.innerHTML = html;
             document.getElementById('modalEdit').style.display = 'flex';
@@ -282,7 +322,8 @@
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const result = await res.json();
                 if(result.success) loadData();
-            } catch (e) { alert("Error en la operación"); }
+                else alert("Error: " + result.message);
+            } catch (e) { alert("Error de comunicación"); }
         }
 
         function setupForms() {
@@ -315,6 +356,10 @@
                 e.preventDefault();
                 const formData = new FormData(e.target);
                 const payload = Object.fromEntries(formData.entries());
+                
+                // Convertir monto a número si existe
+                if(payload.monto) payload.monto = Number(payload.monto);
+                
                 payload.action = document.getElementById('editType').value;
                 payload.index = document.getElementById('editIndex').value;
                 closeModal();
@@ -340,7 +385,8 @@
                 data: {
                     labels: ['Ingresos', 'Gastos'],
                     datasets: [{ data: [ti, tg], backgroundColor: ['#38ef7d', '#ff4d4d'] }]
-                }
+                },
+                options: { plugins: { title: { display: true, text: 'Distribución Ingresos vs Gastos' } } }
             });
         }
     </script>
