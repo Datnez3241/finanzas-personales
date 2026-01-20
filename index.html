@@ -1,163 +1,206 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Control Financiero Personal</title>
+    <meta charset="UTF-8">
+    <title>Control Financiero - Sistema Full</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root { --primary: #4361ee; --success: #2ec4b6; --danger: #e71d36; --warning: #ff9f1c; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
+        .container { max-width: 1100px; margin: auto; background: white; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); overflow: hidden; }
+        .header { background: #1b263b; color: white; padding: 20px; text-align: center; }
+        .tabs { display: flex; background: #e9ecef; }
+        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; color: #495057; }
+        .tab.active { background: white; color: var(--primary); border-bottom: 3px solid var(--primary); }
+        .content { padding: 25px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        form { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 25px; background: #f8f9fa; padding: 15px; border-radius: 8px; }
+        input, select, button { padding: 10px; border: 1px solid #ced4da; border-radius: 5px; }
+        button { cursor: pointer; border: none; font-weight: bold; }
+        .btn-add { background: var(--primary); color: white; }
+        .btn-edit { background: var(--warning); color: white; margin-right: 5px; }
+        .btn-del { background: var(--danger); color: white; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; border-bottom: 1px solid #dee2e6; text-align: left; }
+        th { background: #f1f3f5; }
 
-<style>
-body{
-  font-family:Segoe UI,Arial;
-  background:#f4f6f8;
-  padding:20px
-}
-.container{
-  max-width:1100px;
-  margin:auto;
-  background:#fff;
-  padding:25px;
-  border-radius:12px;
-  box-shadow:0 6px 18px rgba(0,0,0,.15)
-}
-h2{margin-top:0}
-form{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-  gap:10px;
-  margin-bottom:20px
-}
-input,button{
-  padding:10px;
-  border-radius:6px;
-  border:1px solid #ccc
-}
-button{
-  background:#4361ee;
-  color:#fff;
-  border:none;
-  font-weight:bold;
-  cursor:pointer
-}
-button.del{background:#e71d36}
-button.edit{background:#ff9f1c;color:#000}
-table{
-  width:100%;
-  border-collapse:collapse
-}
-th,td{
-  padding:10px;
-  border-bottom:1px solid #ddd;
-  text-align:left
-}
-th{background:#f1f3f5}
-#msg{opacity:.8;font-size:.9em}
-</style>
+        /* Modal para editar */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-body { background: white; padding: 25px; border-radius: 10px; width: 400px; }
+    </style>
 </head>
-
 <body>
 
 <div class="container">
-  <h2>💰 Control Financiero</h2>
-  <p id="msg">Cargando datos…</p>
+    <div class="header">
+        <h1>Control de Finanzas</h1>
+        <p id="msg" style="font-size: 0.9em; opacity: 0.8;">Sincronizando...</p>
+    </div>
 
-  <!-- ================= GASTOS ================= -->
-  <h3>Gastos</h3>
-  <form onsubmit="add(event,'addGasto')">
-    <input type="date" name="fecha" required>
-    <input name="descripcion" placeholder="Descripción" required>
-    <input name="categoria" placeholder="Categoría">
-    <input type="number" name="monto" placeholder="Monto" required>
-    <input name="pago" placeholder="Pago">
-    <button>Guardar</button>
-  </form>
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('gastos', this)">💸 Gastos</div>
+        <div class="tab" onclick="showTab('ingresos', this)">💵 Ingresos</div>
+        <div class="tab" onclick="showTab('cdts', this)">🏦 CDTs</div>
+    </div>
 
-  <table id="tblGastos"></table>
+    <div class="content">
+        <div id="tab-gastos" class="tab-content active">
+            <form onsubmit="handlePost(event, 'addGasto')">
+                <input type="date" name="fecha" required>
+                <input type="text" name="descripcion" placeholder="Descripción" required>
+                <select name="categoria">
+                    <option value="Servicios">Servicios</option>
+                    <option value="Comida">Comida</option>
+                    <option value="Transporte">Transporte</option>
+                    <option value="Varios">Varios</option>
+                </select>
+                <input type="number" name="monto" placeholder="Monto" required>
+                <input type="text" name="pago" placeholder="Pago (Efectivo/PSE)">
+                <button class="btn-add">Guardar</button>
+            </form>
+            <table id="t-gastos">
+                <thead><tr><th>Fecha</th><th>Desc</th><th>Monto</th><th>Acción</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="tab-ingresos" class="tab-content">
+            <form onsubmit="handlePost(event, 'addIngreso')">
+                <input type="date" name="fecha" required>
+                <input type="text" name="descripcion" placeholder="Fuente" required>
+                <input type="number" name="monto" placeholder="Monto" required>
+                <input type="text" name="fuente" placeholder="Entidad">
+                <button class="btn-add" style="background:var(--success)">Guardar</button>
+            </form>
+            <table id="t-ingresos">
+                <thead><tr><th>Fecha</th><th>Fuente</th><th>Monto</th><th>Acción</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="tab-cdts" class="tab-content">
+            <form onsubmit="handlePost(event, 'addCDT')">
+                <input type="text" name="banco" placeholder="Banco" required>
+                <input type="number" name="monto" placeholder="Monto" required>
+                <input type="number" step="0.01" name="tasa" placeholder="Tasa %" required>
+                <input type="date" name="inicio" required>
+                <input type="date" name="fin" required>
+                <button class="btn-add" style="background:var(--warning)">Guardar</button>
+            </form>
+            <table id="t-cdts">
+                <thead><tr><th>Banco</th><th>Monto</th><th>Fin</th><th>Acción</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="editModal" class="modal">
+    <div class="modal-body">
+        <h3>Editar Registro</h3>
+        <form id="editForm" onsubmit="handleUpdate(event)">
+            <input type="hidden" name="index" id="editRowId">
+            <input type="hidden" name="action" id="editAction">
+            <div id="editFields"></div>
+            <button class="btn-add">Actualizar Datos</button>
+            <button type="button" onclick="closeModal()" style="background:#6c757d; color:white; margin-top:5px;">Cancelar</button>
+        </form>
+    </div>
 </div>
 
 <script>
-const URL_API = 'https://script.google.com/macros/s/AKfycbw2GtG5vsvvpg2dfNMnBFmiEOco6oiv7wOwhuQD3iJmxWh73PwrhU7W_OeqSZXWr7Rf/exec';
-let DB = { gastos: [] };
+    const URL_API = 'https://script.google.com/macros/s/AKfycbw2GtG5vsvvpg2dfNMnBFmiEOco6oiv7wOwhuQD3iJmxWh73PwrhU7W_OeqSZXWr7Rf/exec';
+    let database = {};
 
-// ================= LOAD =================
-async function load(){
-  msg('⌛ Cargando…');
-  DB = await fetch(URL_API).then(r=>r.json());
-  renderGastos();
-  msg('✅ Sincronizado');
-}
+    async function load() {
+        document.getElementById('msg').innerText = '⌛ Cargando datos...';
+        try {
+            const r = await fetch(URL_API);
+            database = await r.json();
+            renderTables();
+            document.getElementById('msg').innerText = '✅ Sincronizado';
+        } catch (e) {
+            document.getElementById('msg').innerText = '❌ Error de conexión';
+        }
+    }
 
-// ================= RENDER =================
-function renderGastos(){
-  const t = document.getElementById('tblGastos');
-  t.innerHTML = `
-    <tr>
-      <th>Fecha</th>
-      <th>Descripción</th>
-      <th>Monto</th>
-      <th>Acciones</th>
-    </tr>
-    ${DB.gastos.map(g=>`
-      <tr>
-        <td>${g.fecha}</td>
-        <td>${g.descripcion}</td>
-        <td>$${Number(g.monto).toLocaleString()}</td>
-        <td>
-          <button class="edit" onclick="editGasto(${g.rowId},${g.monto})">✏️</button>
-          <button class="del" onclick="del('deleteGasto',${g.rowId})">❌</button>
-        </td>
-      </tr>
-    `).join('')}
-  `;
-}
+    function renderTables() {
+        fill('t-gastos', database.gastos, ['fecha', 'descripcion', 'monto'], 'Gasto');
+        fill('t-ingresos', database.ingresos, ['fecha', 'descripcion', 'monto'], 'Ingreso');
+        fill('t-cdts', database.cdts, ['banco', 'monto', 'fin'], 'CDT');
+    }
 
-// ================= ADD =================
-async function add(e,action){
-  e.preventDefault();
-  const data = Object.fromEntries(new FormData(e.target));
-  data.action = action;
+    function fill(id, data, fields, type) {
+        const tb = document.querySelector(`#${id} tbody`);
+        tb.innerHTML = data.map((item, idx) => `
+            <tr>
+                ${fields.map(f => `<td>${item[f]}</td>`).join('')}
+                <td>
+                    <button class="btn-edit" onclick="openEdit('${type}', ${idx})">✎</button>
+                    <button class="btn-del" onclick="handleDelete('${type}', ${item.rowId})">✖</button>
+                </td>
+            </tr>
+        `).join('');
+    }
 
-  await fetch(URL_API,{
-    method:'POST',
-    body:JSON.stringify(data)
-  });
+    async function handlePost(e, action) {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target));
+        data.action = action;
+        await send(data);
+        e.target.reset();
+    }
 
-  e.target.reset();
-  load();
-}
+    async function handleDelete(type, rowId) {
+        if (!confirm('¿Seguro que deseas eliminar?')) return;
+        await send({ action: 'delete' + type, index: rowId });
+    }
 
-// ================= DELETE =================
-async function del(action,index){
-  if(!confirm('¿Eliminar este registro?')) return;
-  await fetch(URL_API,{
-    method:'POST',
-    body:JSON.stringify({action,index})
-  });
-  load();
-}
+    function openEdit(type, idx) {
+        const item = database[type.toLowerCase() + 's'][idx];
+        const fieldsDiv = document.getElementById('editFields');
+        document.getElementById('editRowId').value = item.rowId;
+        document.getElementById('editAction').value = 'update' + type;
+        
+        // Generar inputs dinámicos basados en el objeto
+        let html = '';
+        for (let key in item) {
+            if (key === 'rowId') continue;
+            html += `<label style="font-size:12px; font-weight:bold;">${key.toUpperCase()}</label>
+                     <input name="${key}" value="${item[key]}" style="margin-bottom:10px;" required>`;
+        }
+        fieldsDiv.innerHTML = html;
+        document.getElementById('editModal').style.display = 'flex';
+    }
 
-// ================= EDIT =================
-async function editGasto(rowId,monto){
-  const nuevo = prompt('Nuevo monto:',monto);
-  if(!nuevo) return;
+    async function handleUpdate(e) {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target));
+        await send(data);
+        closeModal();
+    }
 
-  const g = DB.gastos.find(x=>x.rowId===rowId);
-  g.monto = nuevo;
-  g.action = 'updateGasto';
-  g.index = rowId;
+    async function send(payload) {
+        document.getElementById('msg').innerText = '⌛ Procesando...';
+        try {
+            await fetch(URL_API, { method: 'POST', body: JSON.stringify(payload) });
+            await load();
+        } catch (e) { alert('Error al procesar'); }
+    }
 
-  await fetch(URL_API,{
-    method:'POST',
-    body:JSON.stringify(g)
-  });
-  load();
-}
+    function showTab(tab, el) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        el.classList.add('active');
+    }
 
-// ================= UTILS =================
-function msg(t){
-  document.getElementById('msg').innerText = t;
-}
+    function closeModal() { document.getElementById('editModal').style.display = 'none'; }
 
-load();
+    load();
 </script>
-
 </body>
 </html>
