@@ -3,44 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Financiero - Conexión Actualizada</title>
+    <title>Mi Control Financiero</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; text-align: center; }
-        .tabs { display: flex; background: #eee; border-bottom: 2px solid #ddd; }
-        .tab { padding: 15px 25px; cursor: pointer; border: none; background: none; font-weight: bold; color: #666; transition: 0.3s; }
-        .tab.active { background: white; color: #667eea; border-top: 3px solid #667eea; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+        .tabs { display: flex; background: #f8f9fa; border-bottom: 2px solid #ddd; }
+        .tab { padding: 15px 25px; cursor: pointer; border: none; background: none; font-weight: bold; color: #666; }
+        .tab.active { background: white; color: #667eea; border-bottom: 3px solid #667eea; }
         .content { padding: 25px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background: #f8f9fa; padding: 12px; text-align: left; color: #444; border-bottom: 2px solid #eee; }
-        td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #eee; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
         
-        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .btn { padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .btn-edit { background: #667eea; color: white; margin-right: 5px; }
-        .btn-delete { background: #e53e3e; color: white; }
-        .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+        .btn-delete { background: #ff4d4d; color: white; }
+        .btn:hover { opacity: 0.8; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-body { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 450px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .modal-body { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 450px; }
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <h1>💰 Mi Control Financiero</h1>
-        <p>Conectado a Base de Datos en la Nube</p>
-    </div>
-    
+    <div class="header"><h1>💰 Mi Control Financiero</h1></div>
     <div class="tabs">
         <button class="tab active" onclick="showTab('gastos')">💸 Gastos</button>
         <button class="tab" onclick="showTab('ingresos')">💵 Ingresos</button>
@@ -50,9 +46,7 @@
         <div id="gastos" class="tab-content active">
             <h2>Historial de Gastos</h2>
             <table>
-                <thead>
-                    <tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Acciones</th></tr>
-                </thead>
+                <thead><tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th>Monto</th><th>Pago</th><th>Acciones</th></tr></thead>
                 <tbody id="bodyGastos"></tbody>
             </table>
         </div>
@@ -60,9 +54,7 @@
         <div id="ingresos" class="tab-content">
             <h2>Historial de Ingresos</h2>
             <table>
-                <thead>
-                    <tr><th>Fecha</th><th>Fuente</th><th>Monto</th><th>Acciones</th></tr>
-                </thead>
+                <thead><tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Fuente</th><th>Acciones</th></tr></thead>
                 <tbody id="bodyIngresos"></tbody>
             </table>
         </div>
@@ -71,23 +63,21 @@
 
 <div id="modalEdit" class="modal">
     <div class="modal-body">
-        <h3 id="editTitle" style="margin-bottom: 15px; color: #764ba2;">Actualizar Registro</h3>
+        <h3>Actualizar Registro</h3>
         <form id="formEdit">
-            <input type="hidden" id="editIndex">
-            <input type="hidden" id="editType">
+            <input type="hidden" id="editIndex" name="index">
+            <input type="hidden" id="editAction" name="action">
             <div id="editFields"></div>
-            <div style="margin-top: 25px; text-align: right;">
-                <button type="button" class="btn" style="background:#a0aec0; color:white;" onclick="closeModal()">Cancelar</button>
-                <button type="submit" class="btn btn-edit">Guardar Cambios</button>
+            <div style="margin-top: 20px; text-align: right;">
+                <button type="button" class="btn" style="background:#ccc" onclick="closeModal()">Cancelar</button>
+                <button type="submit" class="btn btn-edit">Actualizar</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-    // URL PROPORCIONADA
     const API_URL = 'https://script.google.com/macros/s/AKfycbw2GtG5vsvvpg2dfNMnBFmiEOco6oiv7wOwhuQD3iJmxWh73PwrhU7W_OeqSZXWr7Rf/exec';
-    
     let allData = { gastos: [], ingresos: [] };
 
     document.addEventListener('DOMContentLoaded', loadData);
@@ -97,25 +87,20 @@
             const res = await fetch(API_URL);
             allData = await res.json();
             renderTables();
-        } catch (e) {
-            console.error("Error al obtener datos:", e);
-        }
-    }
-
-    function cleanDate(str) {
-        if (!str) return "";
-        return str.toString().split('T')[0];
+        } catch (e) { console.error("Error cargando datos", e); }
     }
 
     function renderTables() {
         const fmt = (n) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
         
         // Tabla Gastos
-        document.getElementById('bodyGastos').innerHTML = allData.gastos.map(g => `
+        document.getElementById('bodyGastos').innerHTML = (allData.gastos || []).map(g => `
             <tr>
-                <td>${cleanDate(g.fecha)}</td>
+                <td>${g.fecha || ''}</td>
                 <td>${g.descripcion || ''}</td>
+                <td>${g.categoria || ''}</td>
                 <td>${fmt(g.monto)}</td>
+                <td>${g.pago || ''}</td>
                 <td>
                     <button class="btn btn-edit" onclick="openEdit('Gasto', ${g.rowId})">✎</button>
                     <button class="btn btn-delete" onclick="deleteItem('Gasto', ${g.rowId})">✖</button>
@@ -123,11 +108,12 @@
             </tr>`).join('');
 
         // Tabla Ingresos
-        document.getElementById('bodyIngresos').innerHTML = allData.ingresos.map(i => `
+        document.getElementById('bodyIngresos').innerHTML = (allData.ingresos || []).map(i => `
             <tr>
-                <td>${cleanDate(i.fecha)}</td>
-                <td>${i.fuente || ''}</td>
+                <td>${i.fecha || ''}</td>
+                <td>${i.descripcion || ''}</td>
                 <td>${fmt(i.monto)}</td>
+                <td>${i.fuente || ''}</td>
                 <td>
                     <button class="btn btn-edit" onclick="openEdit('Ingreso', ${i.rowId})">✎</button>
                     <button class="btn btn-delete" onclick="deleteItem('Ingreso', ${i.rowId})">✖</button>
@@ -136,75 +122,56 @@
     }
 
     async function deleteItem(type, id) {
-        if (!confirm(`¿Eliminar este registro definitivamente?`)) return;
-        
-        // Enviamos el índice numérico y la acción
-        const payload = { 
-            action: 'delete' + type, 
-            index: parseInt(id) 
-        };
-
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
-            const result = await response.json();
-            if(result.success) {
-                loadData(); 
-            } else {
-                alert("Error del servidor: " + result.message);
-            }
-        } catch (e) {
-            alert("Error de conexión al eliminar.");
-        }
+        if (!confirm("¿Eliminar registro?")) return;
+        const payload = { action: 'delete' + type, index: id };
+        await sendRequest(payload);
     }
 
     function openEdit(type, id) {
-        const list = allData[type.toLowerCase() + 's'];
-        const item = list.find(i => i.rowId === id);
-        
+        const item = allData[type.toLowerCase() + 's'].find(i => i.rowId === id);
         document.getElementById('editIndex').value = id;
-        document.getElementById('editType').value = 'update' + type;
+        document.getElementById('editAction').value = 'update' + type;
         
         let html = '';
-        Object.keys(item).forEach(key => {
-            if (key === 'rowId') return;
-            const isDate = key.toLowerCase().includes('fecha');
-            const val = isDate ? cleanDate(item[key]) : item[key];
-            
-            html += `
-                <div class="form-group">
-                    <label>${key.toUpperCase()}</label>
-                    <input name="${key}" type="${isDate ? 'date' : (typeof val === 'number' ? 'number' : 'text')}" value="${val}">
-                </div>`;
-        });
+        // Generar campos según lo que espera getValuesArray en tu .gs
+        if (type === 'Gasto') {
+            html += field("Fecha", "fecha", "date", item.fecha);
+            html += field("Descripción", "descripcion", "text", item.descripcion);
+            html += field("Categoría", "categoria", "text", item.categoria);
+            html += field("Monto", "monto", "number", item.monto);
+            html += field("Pago", "pago", "text", item.pago);
+        } else {
+            html += field("Fecha", "fecha", "date", item.fecha);
+            html += field("Descripción", "descripcion", "text", item.descripcion);
+            html += field("Monto", "monto", "number", item.monto);
+            html += field("Fuente", "fuente", "text", item.fuente);
+        }
         
         document.getElementById('editFields').innerHTML = html;
         document.getElementById('modalEdit').style.display = 'flex';
     }
 
+    function field(label, name, type, value) {
+        return `<div class="form-group"><label>${label}</label><input name="${name}" type="${type}" value="${value || ''}" required></div>`;
+    }
+
     document.getElementById('formEdit').onsubmit = async (e) => {
         e.preventDefault();
-        const formData = new FormData(e.target);
-        const payload = Object.fromEntries(formData.entries());
-        
-        payload.action = document.getElementById('editType').value;
-        payload.index = parseInt(document.getElementById('editIndex').value);
+        const data = Object.fromEntries(new FormData(e.target));
+        // Asegurar que monto sea número para que no haya errores en la hoja
+        if(data.monto) data.monto = Number(data.monto);
+        await sendRequest(data);
+        closeModal();
+    };
 
+    async function sendRequest(payload) {
         try {
             const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
             const result = await res.json();
-            if(result.success) {
-                closeModal();
-                loadData();
-            } else {
-                alert("Error al actualizar: " + result.message);
-            }
-        } catch (e) {
-            alert("Error de red al actualizar.");
-        }
-    };
+            if(result.success) loadData();
+            else alert("Error: " + result.message);
+        } catch (e) { alert("Error de conexión"); }
+    }
 
     function showTab(id) {
         document.querySelectorAll('.tab-content, .tab').forEach(el => el.classList.remove('active'));
@@ -214,6 +181,5 @@
 
     function closeModal() { document.getElementById('modalEdit').style.display = 'none'; }
 </script>
-
 </body>
 </html>
