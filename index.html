@@ -21,6 +21,7 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
         }
+        /* Header con botón de Sheets */
         .header {
             position: relative;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -46,9 +47,10 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
         .btn-sheets:hover { background-color: #156d39; transform: translateY(-2px); }
-        .btn-sheets img { width: 18px; }
+        .btn-sheets img { width: 18px; height: 18px; }
 
-        .tabs { display: flex; background: #f8f9fa; border-bottom: 2px solid #e9ecef; }
+        /* Estilo de pestañas */
+        .tabs { display: flex; background: #f8f9fa; border-bottom: 2px solid #e9ecef; overflow-x: auto; }
         .tab {
             padding: 15px 30px;
             cursor: pointer;
@@ -57,14 +59,17 @@
             font-weight: 600;
             color: #6c757d;
             transition: 0.3s;
+            white-space: nowrap;
         }
         .tab.active { color: #667eea; border-bottom: 3px solid #667eea; background: white; }
         
+        /* Contenido */
         .content { padding: 30px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Tarjetas */
         .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .card { background: #667eea; color: white; padding: 25px; border-radius: 15px; }
         .card.green { background: #11998e; }
@@ -80,17 +85,19 @@
         .btn-primary { background: #667eea; color: white; }
         .btn-danger { background: #ff4d4d; color: white; }
 
+        .table-container { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { background: #667eea; color: white; padding: 12px; text-align: left; }
         td { padding: 12px; border-bottom: 1px solid #eee; }
 
+        /* Modal */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;
         }
         .modal-content { background: white; padding: 30px; border-radius: 15px; width: 450px; }
         
-        @media (max-width: 768px) { .btn-sheets { position: static; margin-bottom: 15px; } }
+        @media (max-width: 768px) { .btn-sheets { position: static; margin-bottom: 15px; display: flex; width: fit-content; margin-inline: auto; } }
     </style>
 </head>
 <body>
@@ -102,7 +109,7 @@
                 Ver en Google Sheets
             </a>
             <h1>💰 Mi Control Financiero</h1>
-            <p>Dashboard Interactivo</p>
+            <p>Dashboard Interactivo conectado en tiempo real</p>
         </div>
 
         <div class="tabs">
@@ -146,10 +153,12 @@
                         <button type="submit" class="btn btn-primary">Guardar Gasto</button>
                     </form>
                 </div>
-                <table>
-                    <thead><tr><th>Fecha</th><th>Desc.</th><th>Monto</th><th>Cat.</th><th>Acciones</th></tr></thead>
-                    <tbody id="bodyGastos"></tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th>Monto</th><th>Acciones</th></tr></thead>
+                        <tbody id="bodyGastos"></tbody>
+                    </table>
+                </div>
             </div>
 
             <div id="ingresos" class="tab-content">
@@ -162,17 +171,21 @@
                         <button type="submit" class="btn btn-primary">Guardar Ingreso</button>
                     </form>
                 </div>
-                <table>
-                    <thead><tr><th>Fecha</th><th>Desc.</th><th>Monto</th><th>Acciones</th></tr></thead>
-                    <tbody id="bodyIngresos"></tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Acciones</th></tr></thead>
+                        <tbody id="bodyIngresos"></tbody>
+                    </table>
+                </div>
             </div>
-            
+
             <div id="cdts" class="tab-content">
-                <table>
-                    <thead><tr><th>Banco</th><th>Monto</th><th>Tasa</th><th>Acciones</th></tr></thead>
-                    <tbody id="bodyCDTs"></tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Banco</th><th>Monto</th><th>Tasa</th><th>Acciones</th></tr></thead>
+                        <tbody id="bodyCDTs"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -185,38 +198,46 @@
                 <input type="hidden" id="editType">
                 <div id="editFields"></div><br>
                 <button type="submit" class="btn btn-primary">Actualizar</button>
-                <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                <button type="button" class="btn" style="background: #999; color: white;" onclick="closeModal()">Cancelar</button>
             </form>
         </div>
     </div>
 
     <script>
-        const API_URL = 'ESCRIBE_AQUI_TU_NUEVA_URL_DESPUES_DE_PUBLICAR';
+        // REEMPLAZA ESTA URL CON LA TUYA
+        const API_URL = 'https://script.google.com/macros/s/AKfycbw2GtG5vsvvpg2dfNMnBFmiEOco6oiv7wOwhuQD3iJmxWh73PwrhU7W_OeqSZXWr7Rf/exec';
+
         let allData = { gastos: [], ingresos: [], cdts: [] };
         let myChart;
 
         async function loadData() {
-            const res = await fetch(API_URL);
-            allData = await res.json();
-            render();
+            try {
+                const res = await fetch(API_URL);
+                allData = await res.json();
+                renderAll();
+            } catch (e) { console.error("Error cargando datos"); }
         }
 
-        function cleanDate(str) { return str ? str.toString().substring(0, 10) : ""; }
+        function cleanDate(str) { 
+            if(!str) return "";
+            return str.toString().substring(0, 10); 
+        }
 
-        function render() {
+        function renderAll() {
             renderTable('bodyGastos', allData.gastos, 'Gasto');
             renderTable('bodyIngresos', allData.ingresos, 'Ingreso');
             renderTable('bodyCDTs', allData.cdts, 'CDT');
-            updateDash();
+            updateDashboard();
         }
 
-        function renderTable(id, data, type) {
-            const tbody = document.getElementById(id);
+        function renderTable(containerId, data, type) {
+            const tbody = document.getElementById(containerId);
             if(!tbody) return;
             tbody.innerHTML = data.map(item => `
                 <tr>
                     <td>${cleanDate(item.fecha || item.vence || "")}</td>
                     <td>${item.descripcion || item.banco || ""}</td>
+                    ${type === 'Gasto' ? `<td>${item.categoria || ""}</td>` : ''}
                     <td>$${Number(item.monto).toLocaleString()}</td>
                     <td>
                         <button class="btn btn-primary" style="padding:5px 10px" onclick="openEdit('${type}', ${item.rowid})">✎</button>
@@ -228,24 +249,28 @@
 
         async function send(payload) {
             await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            setTimeout(loadData, 1500);
+            setTimeout(loadData, 1500); // Recargar tras 1.5 segundos
         }
 
-        async function deleteItem(type, id) {
-            if(confirm("¿Eliminar?")) await send({ action: 'delete' + type, index: id });
+        function deleteItem(type, id) {
+            if(confirm("¿Estás seguro de eliminar este registro?")) {
+                send({ action: 'delete' + type, index: parseInt(id) });
+            }
         }
 
         function openEdit(type, id) {
-            const item = allData[type.toLowerCase() + 's'].find(i => i.rowid === id);
+            const list = allData[type.toLowerCase() + 's'];
+            const item = list.find(i => i.rowid === id);
             document.getElementById('editIndex').value = id;
             document.getElementById('editType').value = 'update' + type;
+            
             let html = '';
             Object.keys(item).forEach(k => {
                 if(k === 'rowid') return;
                 let val = item[k];
                 let inputType = k.includes('fecha') ? 'date' : (typeof val === 'number' ? 'number' : 'text');
                 if(inputType === 'date') val = cleanDate(val);
-                html += `<div class="form-group"><label>${k}</label><input name="${k}" type="${inputType}" value="${val}"></div>`;
+                html += `<div class="form-group"><label>${k.toUpperCase()}</label><input name="${k}" type="${inputType}" value="${val}"></div>`;
             });
             document.getElementById('editFields').innerHTML = html;
             document.getElementById('modalEdit').style.display = 'flex';
@@ -263,33 +288,51 @@
             e.target.reset();
         };
 
+        document.getElementById('formIngreso').onsubmit = e => {
+            e.preventDefault();
+            send({
+                action: 'addIngreso',
+                fecha: document.getElementById('ingresoFecha').value,
+                descripcion: document.getElementById('ingresoDesc').value,
+                monto: document.getElementById('ingresoMonto').value
+            });
+            e.target.reset();
+        };
+
         document.getElementById('formEdit').onsubmit = e => {
             e.preventDefault();
-            const data = Object.fromEntries(new FormData(e.target));
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
             data.action = document.getElementById('editType').value;
-            data.index = document.getElementById('editIndex').value;
+            data.index = parseInt(document.getElementById('editIndex').value);
             closeModal();
             send(data);
         };
 
-        function updateDash() {
-            const tg = allData.gastos.reduce((a, b) => a + Number(b.monto), 0);
-            const ti = allData.ingresos.reduce((a, b) => a + Number(b.monto), 0);
+        function updateDashboard() {
+            const tg = allData.gastos.reduce((s, i) => s + (Number(i.monto) || 0), 0);
+            const ti = allData.ingresos.reduce((s, i) => s + (Number(i.monto) || 0), 0);
+            const tc = allData.cdts.reduce((s, i) => s + (Number(i.monto) || 0), 0);
+            
             document.getElementById('totalGastos').innerText = '$' + tg.toLocaleString();
             document.getElementById('totalIngresos').innerText = '$' + ti.toLocaleString();
             document.getElementById('balance').innerText = '$' + (ti - tg).toLocaleString();
-            
+            document.getElementById('totalCDTs').innerText = '$' + tc.toLocaleString();
+
             if(myChart) myChart.destroy();
             myChart = new Chart(document.getElementById('chartCategories'), {
                 type: 'doughnut',
-                data: { labels: ['Gastos', 'Ingresos'], datasets: [{ data: [tg, ti], backgroundColor: ['#ff4d4d', '#38ef7d'] }] }
+                data: {
+                    labels: ['Ingresos', 'Gastos'],
+                    datasets: [{ data: [ti, tg], backgroundColor: ['#38ef7d', '#ff4d4d'] }]
+                }
             });
         }
 
-        function showTab(id, e) {
-            document.querySelectorAll('.tab-content, .tab').forEach(x => x.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            e.target.classList.add('active');
+        function showTab(name, event) {
+            document.querySelectorAll('.tab-content, .tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(name).classList.add('active');
+            event.target.classList.add('active');
         }
 
         function closeModal() { document.getElementById('modalEdit').style.display = 'none'; }
