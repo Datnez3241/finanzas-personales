@@ -6,19 +6,13 @@
     <title>Mi Control Financiero</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -27,31 +21,13 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
         }
-
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 30px;
             text-align: center;
         }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1em;
-        }
-
-        .tabs {
-            display: flex;
-            background: #f8f9fa;
-            border-bottom: 2px solid #e9ecef;
-            overflow-x: auto;
-        }
-
+        .tabs { display: flex; background: #f8f9fa; border-bottom: 2px solid #e9ecef; overflow-x: auto; }
         .tab {
             padding: 15px 30px;
             cursor: pointer;
@@ -63,239 +39,47 @@
             transition: all 0.3s;
             white-space: nowrap;
         }
-
-        .tab:hover {
-            background: #e9ecef;
-        }
-
-        .tab.active {
-            color: #667eea;
-            border-bottom: 3px solid #667eea;
-            background: white;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
+        .tab.active { color: #667eea; border-bottom: 3px solid #667eea; background: white; }
+        .content { padding: 30px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 25px;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-
-        .card h3 {
-            font-size: 0.9em;
-            opacity: 0.9;
-            margin-bottom: 10px;
-        }
-
-        .card .amount {
-            font-size: 2em;
-            font-weight: bold;
-        }
-
-        .card.green {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        }
-
-        .card.blue {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
-
-        .card.orange {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-        }
-
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .chart-container {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .chart-container h3 {
-            margin-bottom: 15px;
-            color: #495057;
-        }
-
-        .form-container {
-            background: #f8f9fa;
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 600px;
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #495057;
-            font-weight: 600;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-right: 5px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-            padding: 6px 12px;
-            font-size: 0.9em;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background: #667eea;
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        tr:hover {
-            background: #f1f3f5;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #6c757d;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        /* Estilo para el Modal de Edición */
+        .card.green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .card.blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .card.orange { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .chart-container { background: #f8f9fa; padding: 20px; border-radius: 15px; }
+        .form-container { background: #f8f9fa; padding: 30px; border-radius: 15px; max-width: 600px; margin-bottom: 30px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-danger { background: #ff4d4d; color: white; margin-left: 5px; }
+        .table-container { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th { background: #667eea; color: white; padding: 12px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
         .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 2000;
-            align-items: center; justify-content: center;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;
         }
-        .modal-body {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 768px) {
-            .charts-grid { grid-template-columns: 1fr; }
-            .header h1 { font-size: 1.8em; }
-            .content { padding: 15px; }
-        }
+        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; }
     </style>
 </head>
 <body>
+
     <div class="container">
         <div class="header">
             <h1>💰 Mi Control Financiero</h1>
-            <p>Gestiona tus finanzas de manera inteligente</p>
+            <p>Dashboard Interactivo</p>
         </div>
 
         <div class="tabs">
@@ -308,83 +92,40 @@
         <div class="content">
             <div id="dashboard" class="tab-content active">
                 <div class="cards-grid">
-                    <div class="card">
-                        <h3>Total Gastos (Mes Actual)</h3>
-                        <div class="amount" id="totalGastos">$0</div>
-                    </div>
-                    <div class="card green">
-                        <h3>Total Ingresos (Mes Actual)</h3>
-                        <div class="amount" id="totalIngresos">$0</div>
-                    </div>
-                    <div class="card blue">
-                        <h3>Balance Mensual</h3>
-                        <div class="amount" id="balance">$0</div>
-                    </div>
-                    <div class="card orange">
-                        <h3>Total en CDTs</h3>
-                        <div class="amount" id="totalCDTs">$0</div>
-                    </div>
+                    <div class="card"><h3>Gastos</h3><div class="amount" id="totalGastos">$0</div></div>
+                    <div class="card green"><h3>Ingresos</h3><div class="amount" id="totalIngresos">$0</div></div>
+                    <div class="card blue"><h3>Balance</h3><div class="amount" id="balance">$0</div></div>
+                    <div class="card orange"><h3>CDTs</h3><div class="amount" id="totalCDTs">$0</div></div>
                 </div>
                 <div class="charts-grid">
-                    <div class="chart-container">
-                        <h3>Gastos por Categoría</h3>
-                        <canvas id="chartCategories"></canvas>
-                    </div>
-                    <div class="chart-container">
-                        <h3>Ingresos vs Gastos</h3>
-                        <canvas id="chartComparison"></canvas>
-                    </div>
+                    <div class="chart-container"><canvas id="chartCategories"></canvas></div>
+                    <div class="chart-container"><canvas id="chartComparison"></canvas></div>
                 </div>
             </div>
 
             <div id="gastos" class="tab-content">
                 <div class="form-container">
-                    <h2 style="margin-bottom: 20px;">Agregar Gasto</h2>
+                    <h3>Registrar Gasto</h3>
                     <form id="formGasto">
-                        <div class="form-group">
-                            <label>Fecha</label>
-                            <input type="date" id="gastoFecha" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Descripción</label>
-                            <input type="text" id="gastoDesc" placeholder="Ej: Recarga celular" required>
-                        </div>
+                        <div class="form-group"><label>Fecha</label><input type="date" id="gastoFecha" required></div>
+                        <div class="form-group"><label>Descripción</label><input type="text" id="gastoDesc" required></div>
                         <div class="form-group">
                             <label>Categoría</label>
-                            <select id="gastoCategoria" required>
-                                <option value="">Seleccionar...</option>
-                                <option value="servicio">Servicio</option>
-                                <option value="comida">Comida</option>
-                                <option value="transporte">Transporte</option>
-                                <option value="entretenimiento">Entretenimiento</option>
-                                <option value="salud">Salud</option>
-                                <option value="otros">Otros</option>
+                            <select id="gastoCategoria">
+                                <option value="Comida">Comida</option>
+                                <option value="Transporte">Transporte</option>
+                                <option value="Servicios">Servicios</option>
+                                <option value="Otros">Otros</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>Monto</label>
-                            <input type="number" id="gastoMonto" placeholder="20000" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Método de Pago</label>
-                            <select id="gastoPago" required>
-                                <option value="">Seleccionar...</option>
-                                <option value="PSE">PSE</option>
-                                <option value="Efectivo">Efectivo</option>
-                                <option value="Tarjeta">Tarjeta</option>
-                                <option value="Transferencia">Transferencia</option>
-                            </select>
-                        </div>
+                        <div class="form-group"><label>Monto</label><input type="number" id="gastoMonto" required></div>
+                        <div class="form-group"><label>Método</label><input type="text" id="gastoPago" placeholder="Nequi, Efectivo..."></div>
                         <button type="submit" class="btn btn-primary">Guardar Gasto</button>
                     </form>
                 </div>
                 <div class="table-container">
-                    <h3 style="margin-bottom: 15px;">Historial de Gastos</h3>
-                    <div id="loadingGastos" class="loading"><div class="spinner"></div>Cargando gastos...</div>
-                    <table id="tableGastos" style="display: none;">
-                        <thead>
-                            <tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th>Monto</th><th>Pago</th><th>Acciones</th></tr>
-                        </thead>
+                    <table>
+                        <thead><tr><th>Fecha</th><th>Desc.</th><th>Cat.</th><th>Monto</th><th>Acciones</th></tr></thead>
                         <tbody id="bodyGastos"></tbody>
                     </table>
                 </div>
@@ -392,34 +133,18 @@
 
             <div id="ingresos" class="tab-content">
                 <div class="form-container">
-                    <h2 style="margin-bottom: 20px;">Agregar Ingreso</h2>
+                    <h3>Registrar Ingreso</h3>
                     <form id="formIngreso">
-                        <div class="form-group">
-                            <label>Fecha</label>
-                            <input type="date" id="ingresoFecha" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Descripción</label>
-                            <input type="text" id="ingresoDesc" placeholder="Ej: Salario mensual" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Monto</label>
-                            <input type="number" id="ingresoMonto" placeholder="1500000" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Fuente</label>
-                            <input type="text" id="ingresoFuente" placeholder="Ej: Empresa XYZ" required>
-                        </div>
+                        <div class="form-group"><label>Fecha</label><input type="date" id="ingresoFecha" required></div>
+                        <div class="form-group"><label>Descripción</label><input type="text" id="ingresoDesc" required></div>
+                        <div class="form-group"><label>Monto</label><input type="number" id="ingresoMonto" required></div>
+                        <div class="form-group"><label>Fuente</label><input type="text" id="ingresoFuente" required></div>
                         <button type="submit" class="btn btn-primary">Guardar Ingreso</button>
                     </form>
                 </div>
                 <div class="table-container">
-                    <h3 style="margin-bottom: 15px;">Historial de Ingresos</h3>
-                    <div id="loadingIngresos" class="loading"><div class="spinner"></div>Cargando ingresos...</div>
-                    <table id="tableIngresos" style="display: none;">
-                        <thead>
-                            <tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Fuente</th><th>Acciones</th></tr>
-                        </thead>
+                    <table>
+                        <thead><tr><th>Fecha</th><th>Desc.</th><th>Monto</th><th>Fuente</th><th>Acciones</th></tr></thead>
                         <tbody id="bodyIngresos"></tbody>
                     </table>
                 </div>
@@ -427,38 +152,18 @@
 
             <div id="cdts" class="tab-content">
                 <div class="form-container">
-                    <h2 style="margin-bottom: 20px;">Agregar CDT</h2>
+                    <h3>Nuevo CDT</h3>
                     <form id="formCDT">
-                        <div class="form-group">
-                            <label>Banco</label>
-                            <input type="text" id="cdtBanco" placeholder="Ej: Bancolombia" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Monto</label>
-                            <input type="number" id="cdtMonto" placeholder="5000000" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Tasa (%)</label>
-                            <input type="number" step="0.01" id="cdtTasa" placeholder="12.5" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Fecha Inicio</label>
-                            <input type="date" id="cdtInicio" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Fecha Fin</label>
-                            <input type="date" id="cdtFin" required>
-                        </div>
+                        <div class="form-group"><label>Banco</label><input type="text" id="cdtBanco" required></div>
+                        <div class="form-group"><label>Monto</label><input type="number" id="cdtMonto" required></div>
+                        <div class="form-group"><label>Tasa %</label><input type="number" step="0.1" id="cdtTasa" required></div>
+                        <div class="form-group"><label>Fecha Fin</label><input type="date" id="cdtFin" required></div>
                         <button type="submit" class="btn btn-primary">Guardar CDT</button>
                     </form>
                 </div>
                 <div class="table-container">
-                    <h3 style="margin-bottom: 15px;">Mis CDTs</h3>
-                    <div id="loadingCDTs" class="loading"><div class="spinner"></div>Cargando CDTs...</div>
-                    <table id="tableCDTs" style="display: none;">
-                        <thead>
-                            <tr><th>Banco</th><th>Monto</th><th>Tasa</th><th>Inicio</th><th>Fin</th><th>Acciones</th></tr>
-                        </thead>
+                    <table>
+                        <thead><tr><th>Banco</th><th>Monto</th><th>Tasa</th><th>Vence</th><th>Acciones</th></tr></thead>
                         <tbody id="bodyCDTs"></tbody>
                     </table>
                 </div>
@@ -467,244 +172,176 @@
     </div>
 
     <div id="modalEdit" class="modal">
-        <div class="modal-body">
-            <h2 id="editTitle" style="margin-bottom: 20px; color: #667eea;">Editar Registro</h2>
+        <div class="modal-content">
+            <h3 id="editTitle">Editar Registro</h3>
             <form id="formEdit">
-                <input type="hidden" id="editRowId">
-                <input type="hidden" id="editActionType">
+                <input type="hidden" id="editIndex">
+                <input type="hidden" id="editType">
                 <div id="editFields"></div>
-                <div style="margin-top: 20px;">
+                <div style="margin-top:20px">
                     <button type="submit" class="btn btn-primary">Actualizar</button>
-                    <button type="button" class="btn" style="background: #6c757d; color: white;" onclick="closeModal()">Cancelar</button>
+                    <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbw2GtG5vsvvpg2dfNMnBFmiEOco6oiv7wOwhuQD3iJmxWh73PwrhU7W_OeqSZXWr7Rf/exec';
+        // REEMPLAZA ESTA URL CON LA TUYA DE GOOGLE APPS SCRIPT
+        const API_URL = 'https://script.google.com/macros/s/AKfycbytrgHc6lsyrOye2iaMxBqwH0p1SxXhq14GXmjWH_oOfy9oPImSU7v1awXAxn5v3WZs/exec';
 
-        let chartCategories, chartComparison;
-        let allData = {gastos: [], ingresos: [], cdts: []};
+        let allData = { gastos: [], ingresos: [], cdts: [] };
+        let chart1, chart2;
 
-        document.addEventListener('DOMContentLoaded', function() {
-            setDefaultDates();
-            loadAllData();
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
             setupForms();
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('input[type="date"]').forEach(i => i.value = today);
         });
 
-        function setDefaultDates() {
-            const today = new Date().toISOString().split('T')[0];
-            const dateInputs = ['gastoFecha', 'ingresoFecha', 'cdtInicio'];
-            dateInputs.forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = today; });
-        }
-
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
-            if (tabName === 'dashboard') updateDashboard();
-        }
-
-        async function loadAllData() {
+        async function loadData() {
             try {
-                const response = await fetch(API_URL);
-                allData = await response.json();
-                updateDashboard();
-                renderGastos();
-                renderIngresos();
-                renderCDTs();
-            } catch (error) {
-                console.error('Error cargando datos:', error);
-            }
+                const res = await fetch(API_URL);
+                allData = await res.json();
+                renderAll();
+            } catch (e) { alert("Error al conectar con la base de datos"); }
+        }
+
+        function cleanDate(dateStr) {
+            if (!dateStr) return "";
+            // Si viene formato ISO largo (2026-01-19T05:00:00Z), tomar solo los primeros 10 caracteres
+            return dateStr.toString().substring(0, 10);
+        }
+
+        function renderAll() {
+            renderTable('bodyGastos', allData.gastos, 'Gasto');
+            renderTable('bodyIngresos', allData.ingresos, 'Ingreso');
+            renderTable('bodyCDTs', allData.cdts, 'CDT');
+            updateDashboard();
+        }
+
+        function renderTable(containerId, data, type) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = data.map(item => {
+                const keys = Object.keys(item).filter(k => k !== 'rowId');
+                let row = '<tr>';
+                keys.forEach(k => {
+                    let val = item[k];
+                    if(k.toLowerCase().includes('fecha') || k === 'inicio' || k === 'fin') val = cleanDate(val);
+                    if(typeof val === 'number' && k !== 'tasa') val = formatMoney(val);
+                    row += `<td>${val}</td>`;
+                });
+                row += `<td>
+                    <button class="btn btn-primary" style="padding:5px" onclick="openEdit('${type}', ${item.rowId})">✎</button>
+                    <button class="btn btn-danger" style="padding:5px" onclick="deleteItem('${type}', ${item.rowId})">✖</button>
+                </td></tr>`;
+                return row;
+            }).join('');
+        }
+
+        function showTab(name) {
+            document.querySelectorAll('.tab-content, .tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(name).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        async function deleteItem(type, id) {
+            if(!confirm("¿Eliminar este registro?")) return;
+            await send({ action: 'delete' + type, index: id });
+        }
+
+        function openEdit(type, id) {
+            const list = allData[type.toLowerCase() + 's'];
+            const item = list.find(i => i.rowId === id);
+            const fields = document.getElementById('editFields');
+            document.getElementById('editIndex').value = id;
+            document.getElementById('editType').value = 'update' + type;
+            
+            let html = '';
+            Object.keys(item).forEach(k => {
+                if(k === 'rowId') return;
+                let val = item[k];
+                let inputType = "text";
+                if(k.toLowerCase().includes('fecha') || k === 'fin') {
+                    val = cleanDate(val);
+                    inputType = "date";
+                } else if(typeof val === 'number') {
+                    inputType = "number";
+                }
+                html += `<div class="form-group"><label>${k}</label><input name="${k}" type="${inputType}" value="${val}"></div>`;
+            });
+            fields.innerHTML = html;
+            document.getElementById('modalEdit').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('modalEdit').style.display = 'none'; }
+
+        async function send(payload) {
+            try {
+                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await res.json();
+                if(result.success) loadData();
+            } catch (e) { alert("Error en la operación"); }
         }
 
         function setupForms() {
-            document.getElementById('formGasto').onsubmit = async (e) => {
+            document.getElementById('formGasto').onsubmit = e => {
                 e.preventDefault();
-                await sendData({
+                send({
                     action: 'addGasto',
                     fecha: document.getElementById('gastoFecha').value,
                     descripcion: document.getElementById('gastoDesc').value,
                     categoria: document.getElementById('gastoCategoria').value,
-                    monto: parseFloat(document.getElementById('gastoMonto').value),
+                    monto: Number(document.getElementById('gastoMonto').value),
                     pago: document.getElementById('gastoPago').value
                 });
-                e.target.reset(); setDefaultDates();
+                e.target.reset();
             };
 
-            document.getElementById('formIngreso').onsubmit = async (e) => {
+            document.getElementById('formIngreso').onsubmit = e => {
                 e.preventDefault();
-                await sendData({
+                send({
                     action: 'addIngreso',
                     fecha: document.getElementById('ingresoFecha').value,
                     descripcion: document.getElementById('ingresoDesc').value,
-                    monto: parseFloat(document.getElementById('ingresoMonto').value),
+                    monto: Number(document.getElementById('ingresoMonto').value),
                     fuente: document.getElementById('ingresoFuente').value
                 });
-                e.target.reset(); setDefaultDates();
+                e.target.reset();
             };
 
-            document.getElementById('formCDT').onsubmit = async (e) => {
+            document.getElementById('formEdit').onsubmit = e => {
                 e.preventDefault();
-                await sendData({
-                    action: 'addCDT',
-                    banco: document.getElementById('cdtBanco').value,
-                    monto: parseFloat(document.getElementById('cdtMonto').value),
-                    tasa: parseFloat(document.getElementById('cdtTasa').value),
-                    inicio: document.getElementById('cdtInicio').value,
-                    fin: document.getElementById('cdtFin').value
-                });
-                e.target.reset(); setDefaultDates();
+                const formData = new FormData(e.target);
+                const payload = Object.fromEntries(formData.entries());
+                payload.action = document.getElementById('editType').value;
+                payload.index = document.getElementById('editIndex').value;
+                closeModal();
+                send(payload);
             };
         }
 
-        async function sendData(payload) {
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-                if (result.success) {
-                    await loadAllData();
-                } else {
-                    alert('Error del servidor: ' + result.message);
-                }
-            } catch (error) {
-                alert('Error de conexión');
-            }
-        }
-
-        async function deleteRecord(type, rowId) {
-            if (!confirm('¿Seguro que deseas eliminar este registro?')) return;
-            await sendData({ action: 'delete' + type, index: rowId });
-        }
-
-        // Lógica de Edición
-        function openEdit(type, rowId) {
-            const listName = type.toLowerCase() + 's';
-            const item = allData[listName].find(i => i.rowId === rowId);
-            const fieldsDiv = document.getElementById('editFields');
-            
-            document.getElementById('editRowId').value = rowId;
-            document.getElementById('editActionType').value = 'update' + type;
-            
-            let html = '';
-            for (let key in item) {
-                if (key === 'rowId') continue;
-                const isDate = key.includes('fecha') || key === 'inicio' || key === 'fin';
-                html += `
-                    <div class="form-group">
-                        <label>${key.toUpperCase()}</label>
-                        <input name="${key}" type="${isDate ? 'date' : (typeof item[key] === 'number' ? 'number' : 'text')}" 
-                               value="${item[key]}" required>
-                    </div>`;
-            }
-            fieldsDiv.innerHTML = html;
-            document.getElementById('modalEdit').style.display = 'flex';
-        }
-
-        document.getElementById('formEdit').onsubmit = async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const payload = Object.fromEntries(formData.entries());
-            payload.action = document.getElementById('editActionType').value;
-            payload.index = document.getElementById('editRowId').value;
-            
-            closeModal();
-            await sendData(payload);
-        };
-
-        function closeModal() { document.getElementById('modalEdit').style.display = 'none'; }
-
-        function renderGastos() {
-            const tbody = document.getElementById('bodyGastos');
-            tbody.innerHTML = allData.gastos.map(g => `
-                <tr>
-                    <td>${g.fecha}</td><td>${g.descripcion}</td><td>${g.categoria}</td>
-                    <td>${formatCurrency(g.monto)}</td><td>${g.pago}</td>
-                    <td>
-                        <button class="btn btn-primary" style="padding:5px 10px; font-size:0.8em;" onclick="openEdit('Gasto', ${g.rowId})">✎</button>
-                        <button class="btn btn-danger" onclick="deleteRecord('Gasto', ${g.rowId})">✖</button>
-                    </td>
-                </tr>
-            `).join('');
-            document.getElementById('loadingGastos').style.display = 'none';
-            document.getElementById('tableGastos').style.display = 'table';
-        }
-
-        function renderIngresos() {
-            const tbody = document.getElementById('bodyIngresos');
-            tbody.innerHTML = allData.ingresos.map(ing => `
-                <tr>
-                    <td>${ing.fecha}</td><td>${ing.descripcion}</td>
-                    <td>${formatCurrency(ing.monto)}</td><td>${ing.fuente}</td>
-                    <td>
-                        <button class="btn btn-primary" style="padding:5px 10px; font-size:0.8em;" onclick="openEdit('Ingreso', ${ing.rowId})">✎</button>
-                        <button class="btn btn-danger" onclick="deleteRecord('Ingreso', ${ing.rowId})">✖</button>
-                    </td>
-                </tr>
-            `).join('');
-            document.getElementById('loadingIngresos').style.display = 'none';
-            document.getElementById('tableIngresos').style.display = 'table';
-        }
-
-        function renderCDTs() {
-            const tbody = document.getElementById('bodyCDTs');
-            tbody.innerHTML = allData.cdts.map(c => `
-                <tr>
-                    <td>${c.banco}</td><td>${formatCurrency(c.monto)}</td><td>${c.tasa}%</td>
-                    <td>${c.inicio}</td><td>${c.fin}</td>
-                    <td>
-                        <button class="btn btn-primary" style="padding:5px 10px; font-size:0.8em;" onclick="openEdit('CDT', ${c.rowId})">✎</button>
-                        <button class="btn btn-danger" onclick="deleteRecord('CDT', ${c.rowId})">✖</button>
-                    </td>
-                </tr>
-            `).join('');
-            document.getElementById('loadingCDTs').style.display = 'none';
-            document.getElementById('tableCDTs').style.display = 'table';
-        }
+        function formatMoney(n) { return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n); }
 
         function updateDashboard() {
-            const totalGastos = allData.gastos.reduce((sum, g) => sum + g.monto, 0);
-            const totalIngresos = allData.ingresos.reduce((sum, i) => sum + i.monto, 0);
-            const totalCDTs = allData.cdts.reduce((sum, c) => sum + c.monto, 0);
+            const tg = allData.gastos.reduce((s, i) => s + i.monto, 0);
+            const ti = allData.ingresos.reduce((s, i) => s + i.monto, 0);
+            const tc = allData.cdts.reduce((s, i) => s + i.monto, 0);
+            
+            document.getElementById('totalGastos').innerText = formatMoney(tg);
+            document.getElementById('totalIngresos').innerText = formatMoney(ti);
+            document.getElementById('balance').innerText = formatMoney(ti - tg);
+            document.getElementById('totalCDTs').innerText = formatMoney(tc);
 
-            document.getElementById('totalGastos').textContent = formatCurrency(totalGastos);
-            document.getElementById('totalIngresos').textContent = formatCurrency(totalIngresos);
-            document.getElementById('balance').textContent = formatCurrency(totalIngresos - totalGastos);
-            document.getElementById('totalCDTs').textContent = formatCurrency(totalCDTs);
-
-            updateCharts();
-        }
-
-        function updateCharts() {
-            const categorias = {};
-            allData.gastos.forEach(g => { categorias[g.categoria] = (categorias[g.categoria] || 0) + g.monto; });
-
-            if (chartCategories) chartCategories.destroy();
-            chartCategories = new Chart(document.getElementById('chartCategories'), {
-                type: 'pie',
-                data: {
-                    labels: Object.keys(categorias),
-                    datasets: [{ data: Object.values(categorias), backgroundColor: ['#667eea','#764ba2','#11998e','#38ef7d','#4facfe','#fa709a'] }]
-                }
-            });
-
-            if (chartComparison) chartComparison.destroy();
-            chartComparison = new Chart(document.getElementById('chartComparison'), {
-                type: 'bar',
+            if(chart1) chart1.destroy();
+            chart1 = new Chart(document.getElementById('chartCategories'), {
+                type: 'doughnut',
                 data: {
                     labels: ['Ingresos', 'Gastos'],
-                    datasets: [{ label: 'Monto', data: [allData.ingresos.reduce((s,i)=>s+i.monto,0), allData.gastos.reduce((s,g)=>s+g.monto,0)], backgroundColor: ['#38ef7d','#fa709a'] }]
+                    datasets: [{ data: [ti, tg], backgroundColor: ['#38ef7d', '#ff4d4d'] }]
                 }
             });
-        }
-
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(amount);
         }
     </script>
 </body>
