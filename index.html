@@ -3,180 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Control Financiero</title>
+    <title>Control Financiero Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
-        :root { --primary: #4a6cf7; --danger: #ff4d4d; --bg: #f4f7fe; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 25px; }
-        .header { text-align: center; color: #333; margin-bottom: 30px; }
-        .btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { padding: 10px 20px; border: none; cursor: pointer; border-radius: 6px; background: #eee; font-weight: bold; }
-        .tab-btn.active { background: var(--primary); color: white; }
-        .form-card { background: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 30px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 100%; box-sizing: border-box; }
-        .btn-main { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background: #f1f4ff; color: #555; text-align: left; padding: 12px; }
-        td { padding: 12px; border-bottom: 1px solid #eee; }
-        .btn-action { border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; color: white; margin-right: 5px; }
-        .btn-edit { background: #f1c40f; }
-        .btn-del { background: var(--danger); }
-        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:100; align-items:center; justify-content:center; }
-        .modal-content { background:white; padding:25px; border-radius:12px; width:400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        :root { --primary: #667eea; --secondary: #764ba2; --success: #38ef7d; --danger: #ff4d4d; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: linear-gradient(135deg, var(--primary), var(--secondary)); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; }
+        .header { background: #fff; padding: 20px; text-align: center; border-bottom: 2px solid #eee; }
+        .tabs { display: flex; background: #f8f9fa; }
+        .tab { flex: 1; padding: 15px; border: none; cursor: pointer; font-weight: bold; color: #666; transition: 0.3s; }
+        .tab.active { background: white; color: var(--primary); border-bottom: 3px solid var(--primary); }
+        .content { padding: 20px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .card { padding: 20px; border-radius: 10px; color: white; background: var(--primary); }
+        .card.green { background: var(--success); }
+        .card.red { background: var(--danger); }
+        .form-container { background: #f9f9f9; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #eee; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 0.9em; margin-bottom: 5px; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; }
+        .btn-add { background: var(--primary); }
+        .btn-edit { background: #f0ad4e; padding: 5px 10px; }
+        .btn-del { background: var(--danger); padding: 5px 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f4f4f4; }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; }
+        .modal-content { background:white; padding:25px; border-radius:10px; width:400px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header"><h1>💰 Mi Control Financiero</h1></div>
-
-    <div class="btn-group">
-        <button class="tab-btn active" onclick="switchTab('gastos')">Gastos</button>
-        <button class="tab-btn" onclick="switchTab('ingresos')">Ingresos</button>
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('tab-dash', event)">Dashboard</button>
+        <button class="tab" onclick="showTab('tab-gastos', event)">Gastos</button>
+        <button class="tab" onclick="showTab('tab-ingresos', event)">Ingresos</button>
     </div>
 
-    <div id="sec-gastos" class="section">
-        <div class="form-card">
-            <h3>Nuevo Gasto</h3>
-            <form id="form-gastos">
-                <div class="grid">
-                    <input type="date" name="fecha" required>
-                    <input type="text" name="descripcion" placeholder="Descripción" required>
-                    <input type="number" name="monto" placeholder="Monto" required>
-                </div>
-                <button type="submit" class="btn-main">Guardar Gasto</button>
-            </form>
+    <div class="content">
+        <div id="tab-dash" class="tab-content active">
+            <div class="cards-grid">
+                <div class="card"><h4>Gastos</h4><h2 id="dash-gastos">$0</h2></div>
+                <div class="card green"><h4>Ingresos</h4><h2 id="dash-ingresos">$0</h2></div>
+                <div class="card"><h4>Balance</h4><h2 id="dash-balance">$0</h2></div>
+            </div>
+            <canvas id="chartMain" height="100"></canvas>
         </div>
-        <table id="tbl-gastos">
-            <thead><tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Acciones</th></tr></thead>
-            <tbody></tbody>
-        </table>
-    </div>
 
-    <div id="sec-ingresos" class="section" style="display:none">
-        <div class="form-card">
-            <h3>Nuevo Ingreso</h3>
-            <form id="form-ingresos">
-                <div class="grid">
-                    <input type="date" name="fecha" required>
-                    <input type="text" name="descripcion" placeholder="Descripción" required>
-                    <input type="number" name="monto" placeholder="Monto" required>
-                </div>
-                <button type="submit" class="btn-main">Guardar Ingreso</button>
-            </form>
+        <div id="tab-gastos" class="tab-content">
+            <div class="form-container">
+                <form id="form-gasto">
+                    <div class="form-group"><label>Fecha</label><input type="date" name="fecha" required></div>
+                    <div class="form-group"><label>Descripción</label><input type="text" name="descripcion" required></div>
+                    <div class="form-group"><label>Monto</label><input type="number" name="monto" required></div>
+                    <button type="submit" class="btn btn-add">Guardar Gasto</button>
+                </form>
+            </div>
+            <table id="table-gastos">
+                <thead><tr><th>Fecha</th><th>Desc.</th><th>Monto</th><th>Acciones</th></tr></thead>
+                <tbody></tbody>
+            </table>
         </div>
-        <table id="tbl-ingresos">
-            <thead><tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Acciones</th></tr></thead>
-            <tbody></tbody>
-        </table>
+
+        <div id="tab-ingresos" class="tab-content">
+            <div class="form-container">
+                <form id="form-ingreso">
+                    <div class="form-group"><label>Fecha</label><input type="date" name="fecha" required></div>
+                    <div class="form-group"><label>Descripción</label><input type="text" name="descripcion" required></div>
+                    <div class="form-group"><label>Monto</label><input type="number" name="monto" required></div>
+                    <button type="submit" class="btn btn-add">Guardar Ingreso</button>
+                </form>
+            </div>
+            <table id="table-ingresos">
+                <thead><tr><th>Fecha</th><th>Desc.</th><th>Monto</th><th>Acciones</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
-<div id="modal-edit" class="modal">
+<div id="modalEdit" class="modal">
     <div class="modal-content">
-        <h3>Editar Registro</h3>
+        <h3>Editar Registro</h3><br>
         <form id="form-edit">
             <input type="hidden" name="index">
             <input type="hidden" name="action">
-            <div id="edit-inputs"></div>
-            <div style="margin-top:15px; display:flex; gap:10px">
-                <button type="submit" class="btn-main">Actualizar</button>
-                <button type="button" class="btn-main" style="background:#999" onclick="closeModal()">Cancelar</button>
-            </div>
+            <div id="edit-fields"></div><br>
+            <button type="submit" class="btn btn-add">Actualizar</button>
+            <button type="button" class="btn btn-del" onclick="closeModal()">Cerrar</button>
         </form>
     </div>
 </div>
 
 <script>
-    const SCRIPT_URL = 'TU_URL_DE_GOOGLE_APPS_SCRIPT'; // Reemplaza esto
-    let rawData = {};
+    const API_URL = 'ESCRIBE_AQUI_TU_URL_DE_GOOGLE_SCRIPT';
+    let localData = {};
+    let myChart;
 
-    async function init() {
-        const res = await fetch(SCRIPT_URL);
-        rawData = await res.json();
+    async function loadData() {
+        const res = await fetch(API_URL);
+        localData = await res.json();
         render();
     }
 
-    // Corrige el formato de fecha ISO a yyyy-MM-dd
-    function fixDate(dateStr) {
-        if(!dateStr) return "";
-        return dateStr.toString().substring(0, 10);
-    }
-
     function render() {
-        fillTable('tbl-gastos', rawData.gastos, 'Gasto');
-        fillTable('tbl-ingresos', rawData.ingresos, 'Ingreso');
+        fillTable('table-gastos', localData.gastos, 'Gasto');
+        fillTable('table-ingresos', localData.ingresos, 'Ingreso');
+        updateDash();
     }
 
-    function fillTable(tableId, items, type) {
-        const tbody = document.querySelector(`#${tableId} tbody`);
-        tbody.innerHTML = items.map(item => `
+    function fillTable(id, data, type) {
+        const tbody = document.querySelector(`#${id} tbody`);
+        tbody.innerHTML = data.map(item => `
             <tr>
-                <td>${fixDate(item.fecha)}</td>
+                <td>${item.fecha ? item.fecha.substring(0,10) : ''}</td>
                 <td>${item.descripcion}</td>
                 <td>$${Number(item.monto).toLocaleString()}</td>
                 <td>
-                    <button class="btn-action btn-edit" onclick="openEdit('${type}', ${item.rowid})">✎</button>
-                    <button class="btn-action btn-del" onclick="sendAction('delete${type}', ${item.rowid})">✖</button>
+                    <button class="btn btn-edit" onclick="openEdit('${type}', ${item.rowId})">✎</button>
+                    <button class="btn btn-del" onclick="handleAction('delete${type}', ${item.rowId})">✖</button>
                 </td>
             </tr>
         `).join('');
     }
 
-    async function sendAction(action, index, extra = {}) {
-        if(action.includes('delete') && !confirm('¿Estás seguro?')) return;
-        
-        const payload = { action, index, ...extra };
-        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-        init(); // Recargar
+    async function handleAction(action, index, extraData = {}) {
+        const payload = { action, index, ...extraData };
+        await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+        loadData();
     }
 
     function openEdit(type, rowId) {
-        const item = rawData[type.toLowerCase() + 's'].find(i => i.rowid === rowId);
+        const item = localData[type.toLowerCase() + 's'].find(i => i.rowId === rowId);
+        const fields = document.getElementById('edit-fields');
         document.querySelector('[name="index"]').value = rowId;
         document.querySelector('[name="action"]').value = 'update' + type;
         
-        let html = '';
-        Object.keys(item).forEach(key => {
-            if(key === 'rowid') return;
-            let val = item[key];
-            let inputType = (key === 'fecha') ? 'date' : (key === 'monto' ? 'number' : 'text');
-            if(key === 'fecha') val = fixDate(val);
-            html += `<p>${key}:<input type="${inputType}" name="${key}" value="${val}"></p>`;
-        });
-        
-        document.getElementById('edit-inputs').innerHTML = html;
-        document.getElementById('modal-edit').style.display = 'flex';
+        fields.innerHTML = Object.keys(item).filter(k => k !== 'rowId').map(k => `
+            <div class="form-group">
+                <label>${k}</label>
+                <input name="${k}" type="${k==='fecha'?'date':'text'}" value="${k==='fecha'?item[k].substring(0,10):item[k]}">
+            </div>
+        `).join('');
+        document.getElementById('modalEdit').style.display = 'flex';
     }
 
+    // Event Listeners
     document.querySelectorAll('form').forEach(form => {
         form.onsubmit = async (e) => {
             e.preventDefault();
-            const data = Object.fromEntries(new FormData(form));
-            if(form.id === 'form-edit') {
-                const {index, action, ...rest} = data;
-                await sendAction(action, index, rest);
+            const data = Object.fromEntries(new FormData(e.target));
+            if (form.id === 'form-gasto') await handleAction('addGasto', null, data);
+            if (form.id === 'form-ingreso') await handleAction('addIngreso', null, data);
+            if (form.id === 'form-edit') {
+                const {action, index, ...rest} = data;
+                await handleAction(action, index, rest);
                 closeModal();
-            } else {
-                const type = form.id.split('-')[1]; // gastos o ingresos
-                const action = 'add' + type.charAt(0).toUpperCase() + type.slice(1, -1);
-                await sendAction(action, null, data);
-                form.reset();
             }
-        };
+            form.reset();
+        }
     });
 
-    function switchTab(target) {
-        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('sec-' + target).style.display = 'block';
-        event.target.classList.add('active');
+    function updateDash() {
+        const sumG = localData.gastos.reduce((a, b) => a + Number(b.monto), 0);
+        const sumI = localData.ingresos.reduce((a, b) => a + Number(b.monto), 0);
+        document.getElementById('dash-gastos').innerText = '$' + sumG.toLocaleString();
+        document.getElementById('dash-ingresos').innerText = '$' + sumI.toLocaleString();
+        document.getElementById('dash-balance').innerText = '$' + (sumI - sumG).toLocaleString();
     }
 
-    function closeModal() { document.getElementById('modal-edit').style.display = 'none'; }
+    function showTab(id, e) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        e.target.classList.add('active');
+    }
+
+    function closeModal() { document.getElementById('modalEdit').style.display = 'none'; }
     
-    init();
+    loadData();
 </script>
 </body>
 </html>
