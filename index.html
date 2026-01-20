@@ -112,95 +112,191 @@
 </div>
 
 <script>
-    const URL_API = 'https://script.google.com/macros/s/AKfycbw2GtG5vsvvpg2dfNMnBFmiEOco6oiv7wOwhuQD3iJmxWh73PwrhU7W_OeqSZXWr7Rf/exec';
-    let database = {};
+const API_URL = 'https://script.google.com/macros/s/AKfycbytrgHc6lsyrOye2iaMxBqwH0p1SxXhq14GXmjWH_oOfy9oPImSU7v1awXAxn5v3WZs/exec';
 
-    async function load() {
-        document.getElementById('msg').innerText = '⌛ Cargando datos...';
-        try {
-            const r = await fetch(URL_API);
-            database = await r.json();
-            renderTables();
-            document.getElementById('msg').innerText = '✅ Sincronizado';
-        } catch (e) {
-            document.getElementById('msg').innerText = '❌ Error de conexión';
-        }
-    }
+let chartCategories, chartComparison;
+let allData = { gastos: [], ingresos: [], cdts: [] };
 
-    function renderTables() {
-        fill('t-gastos', database.gastos, ['fecha', 'descripcion', 'monto'], 'Gasto');
-        fill('t-ingresos', database.ingresos, ['fecha', 'descripcion', 'monto'], 'Ingreso');
-        fill('t-cdts', database.cdts, ['banco', 'monto', 'fin'], 'CDT');
-    }
+document.addEventListener('DOMContentLoaded', () => {
+  setDefaultDates();
+  loadAllData();
+  setupForms();
+});
 
-    function fill(id, data, fields, type) {
-        const tb = document.querySelector(`#${id} tbody`);
-        tb.innerHTML = data.map((item, idx) => `
-            <tr>
-                ${fields.map(f => `<td>${item[f]}</td>`).join('')}
-                <td>
-                    <button class="btn-edit" onclick="openEdit('${type}', ${idx})">✎</button>
-                    <button class="btn-del" onclick="handleDelete('${type}', ${item.rowId})">✖</button>
-                </td>
-            </tr>
-        `).join('');
-    }
+function setDefaultDates() {
+  const today = new Date().toISOString().split('T')[0];
+  ['gastoFecha','ingresoFecha','cdtInicio'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.value=today;
+  });
+}
 
-    async function handlePost(e, action) {
-        e.preventDefault();
-        const data = Object.fromEntries(new FormData(e.target));
-        data.action = action;
-        await send(data);
-        e.target.reset();
-    }
+function showTab(tabName){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(tabName).classList.add('active');
+  event.target.classList.add('active');
+  if(tabName==='dashboard') updateDashboard();
+}
 
-    async function handleDelete(type, rowId) {
-        if (!confirm('¿Seguro que deseas eliminar?')) return;
-        await send({ action: 'delete' + type, index: rowId });
-    }
+async function loadAllData(){
+  const res = await fetch(API_URL);
+  allData = await res.json();
+  updateDashboard();
+  renderGastos();
+  renderIngresos();
+  renderCDTs();
+}
 
-    function openEdit(type, idx) {
-        const item = database[type.toLowerCase() + 's'][idx];
-        const fieldsDiv = document.getElementById('editFields');
-        document.getElementById('editRowId').value = item.rowId;
-        document.getElementById('editAction').value = 'update' + type;
-        
-        // Generar inputs dinámicos basados en el objeto
-        let html = '';
-        for (let key in item) {
-            if (key === 'rowId') continue;
-            html += `<label style="font-size:12px; font-weight:bold;">${key.toUpperCase()}</label>
-                     <input name="${key}" value="${item[key]}" style="margin-bottom:10px;" required>`;
-        }
-        fieldsDiv.innerHTML = html;
-        document.getElementById('editModal').style.display = 'flex';
-    }
+function setupForms(){
+  document.getElementById('formGasto').onsubmit = async e=>{
+    e.preventDefault();
+    await send({
+      action:'addGasto',
+      fecha:gastoFecha.value,
+      descripcion:gastoDesc.value,
+      categoria:gastoCategoria.value,
+      monto:gastoMonto.value,
+      pago:gastoPago.value
+    });
+    e.target.reset(); setDefaultDates();
+  };
 
-    async function handleUpdate(e) {
-        e.preventDefault();
-        const data = Object.fromEntries(new FormData(e.target));
-        await send(data);
-        closeModal();
-    }
+  document.getElementById('formIngreso').onsubmit = async e=>{
+    e.preventDefault();
+    await send({
+      action:'addIngreso',
+      fecha:ingresoFecha.value,
+      descripcion:ingresoDesc.value,
+      monto:ingresoMonto.value,
+      fuente:ingresoFuente.value
+    });
+    e.target.reset(); setDefaultDates();
+  };
 
-    async function send(payload) {
-        document.getElementById('msg').innerText = '⌛ Procesando...';
-        try {
-            await fetch(URL_API, { method: 'POST', body: JSON.stringify(payload) });
-            await load();
-        } catch (e) { alert('Error al procesar'); }
-    }
+  document.getElementById('formCDT').onsubmit = async e=>{
+    e.preventDefault();
+    await send({
+      action:'addCDT',
+      banco:cdtBanco.value,
+      monto:cdtMonto.value,
+      tasa:cdtTasa.value,
+      inicio:cdtInicio.value,
+      fin:cdtFin.value
+    });
+    e.target.reset(); setDefaultDates();
+  };
+}
 
-    function showTab(tab, el) {
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.getElementById('tab-' + tab).classList.add('active');
-        el.classList.add('active');
-    }
+async function send(data){
+  const form = new URLSearchParams(data);
+  await fetch(API_URL,{method:'POST',body:form});
+  await loadAllData();
+}
 
-    function closeModal() { document.getElementById('editModal').style.display = 'none'; }
+async function deleteRecord(type,row){
+  if(!confirm('¿Eliminar registro?')) return;
+  await send({action:`delete${type}`,index:row});
+}
 
-    load();
+function updateDashboard(){
+  const m=new Date().getMonth(), y=new Date().getFullYear();
+  const g=allData.gastos.filter(x=>{
+    const d=new Date(x.fecha);return d.getMonth()===m&&d.getFullYear()===y;
+  });
+  const i=allData.ingresos.filter(x=>{
+    const d=new Date(x.fecha);return d.getMonth()===m&&d.getFullYear()===y;
+  });
+
+  const tg=g.reduce((s,x)=>s+Number(x.monto),0);
+  const ti=i.reduce((s,x)=>s+Number(x.monto),0);
+  const tc=allData.cdts.reduce((s,x)=>s+Number(x.monto),0);
+
+  totalGastos.textContent=format(tg);
+  totalIngresos.textContent=format(ti);
+  balance.textContent=format(ti-tg);
+  totalCDTs.textContent=format(tc);
+
+  charts(g,i);
+}
+
+function charts(g,i){
+  const cat={};
+  g.forEach(x=>cat[x.categoria]=(cat[x.categoria]||0)+Number(x.monto));
+
+  if(chartCategories) chartCategories.destroy();
+  chartCategories=new Chart(chartCategoriesCtx,{
+    type:'pie',
+    data:{labels:Object.keys(cat),datasets:[{data:Object.values(cat)}]}
+  });
+
+  if(chartComparison) chartComparison.destroy();
+  chartComparison=new Chart(chartComparisonCtx,{
+    type:'bar',
+    data:{labels:['Ingresos','Gastos'],datasets:[{data:[
+      i.reduce((s,x)=>s+Number(x.monto),0),
+      g.reduce((s,x)=>s+Number(x.monto),0)
+    ]}]}
+  });
+}
+
+function renderGastos(){
+  bodyGastos.innerHTML='';
+  allData.gastos.forEach(g=>{
+    bodyGastos.innerHTML+=`
+    <tr>
+      <td>${g.fecha}</td>
+      <td>${g.descripcion}</td>
+      <td>${g.categoria}</td>
+      <td>${format(g.monto)}</td>
+      <td>${g.pago}</td>
+      <td><button class="btn btn-danger" onclick="deleteRecord('Gasto',${g.rowId})">Eliminar</button></td>
+    </tr>`;
+  });
+  loadingGastos.style.display='none';
+  tableGastos.style.display='table';
+}
+
+function renderIngresos(){
+  bodyIngresos.innerHTML='';
+  allData.ingresos.forEach(i=>{
+    bodyIngresos.innerHTML+=`
+    <tr>
+      <td>${i.fecha}</td>
+      <td>${i.descripcion}</td>
+      <td>${format(i.monto)}</td>
+      <td>${i.fuente}</td>
+      <td><button class="btn btn-danger" onclick="deleteRecord('Ingreso',${i.rowId})">Eliminar</button></td>
+    </tr>`;
+  });
+  loadingIngresos.style.display='none';
+  tableIngresos.style.display='table';
+}
+
+function renderCDTs(){
+  bodyCDTs.innerHTML='';
+  allData.cdts.forEach(c=>{
+    bodyCDTs.innerHTML+=`
+    <tr>
+      <td>${c.banco}</td>
+      <td>${format(c.monto)}</td>
+      <td>${c.tasa}%</td>
+      <td>${c.inicio}</td>
+      <td>${c.fin}</td>
+      <td><button class="btn btn-danger" onclick="deleteRecord('CDT',${c.rowId})">Eliminar</button></td>
+    </tr>`;
+  });
+  loadingCDTs.style.display='none';
+  tableCDTs.style.display='table';
+}
+
+function format(v){
+  return new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',minimumFractionDigits:0}).format(v);
+}
+
+const chartCategoriesCtx=document.getElementById('chartCategories');
+const chartComparisonCtx=document.getElementById('chartComparison');
 </script>
+
 </body>
 </html>
