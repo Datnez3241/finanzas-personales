@@ -85,7 +85,7 @@
         .btn-primary:hover { background: #5568d3; transform: translateY(-2px); }
         .btn-danger { background: #ff4d4d; color: white; }
         .btn-danger:hover { background: #e04343; }
-        .btn-sm { padding: 6px 12px; font-size: 0.9em; }
+        .btn-sm { padding: 6px 12px; font-size: 0.9em; margin: 2px; }
         .table-container { overflow-x: auto; margin-top: 20px; background: #f8f9fa; padding: 20px; border-radius: 15px; }
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
         th { background: #667eea; color: white; padding: 12px; text-align: left; }
@@ -113,35 +113,19 @@
             max-height: 90vh;
             overflow-y: auto;
         }
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #667eea;
-            font-weight: bold;
-        }
+        .loading { text-align: center; padding: 20px; color: #667eea; font-weight: bold; }
         @media (max-width: 768px) {
-            .sheet-link {
-                position: static;
-                display: block;
-                margin-top: 15px;
-            }
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
+            .sheet-link { position: static; display: block; margin-top: 15px; }
+            .charts-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-
     <div class="container">
         <div class="header">
             <h1>💰 Mi Control Financiero</h1>
             <p>Dashboard Interactivo</p>
-            <a href="https://docs.google.com/spreadsheets/d/1Yw2ZOBNbHq6b2sSABmvZr22Sm9jQSO6XZ603wlZcql0/edit" 
-               target="_blank" 
-               class="sheet-link">
-                📊 Ver Google Sheets
-            </a>
+            <a href="https://docs.google.com/spreadsheets/d/1Yw2ZOBNbHq6b2sSABmvZr22Sm9jQSO6XZ603wlZcql0/edit" target="_blank" class="sheet-link">📊 Ver Google Sheets</a>
         </div>
 
         <div class="tabs">
@@ -154,32 +138,14 @@
         <div class="content">
             <div id="dashboard" class="tab-content active">
                 <div class="cards-grid">
-                    <div class="card">
-                        <h3>Total Gastos (Mes Actual)</h3>
-                        <div class="amount" id="totalGastos">$0</div>
-                    </div>
-                    <div class="card green">
-                        <h3>Total Ingresos (Mes Actual)</h3>
-                        <div class="amount" id="totalIngresos">$0</div>
-                    </div>
-                    <div class="card blue">
-                        <h3>Balance Mensual</h3>
-                        <div class="amount" id="balance">$0</div>
-                    </div>
-                    <div class="card orange">
-                        <h3>Total en CDTs</h3>
-                        <div class="amount" id="totalCDTs">$0</div>
-                    </div>
+                    <div class="card"><h3>Total Gastos (Mes Actual)</h3><div class="amount" id="totalGastos">$0</div></div>
+                    <div class="card green"><h3>Total Ingresos (Mes Actual)</h3><div class="amount" id="totalIngresos">$0</div></div>
+                    <div class="card blue"><h3>Balance Mensual</h3><div class="amount" id="balance">$0</div></div>
+                    <div class="card orange"><h3>Total en CDTs</h3><div class="amount" id="totalCDTs">$0</div></div>
                 </div>
                 <div class="charts-grid">
-                    <div class="chart-container">
-                        <h3>Gastos por Categoría</h3>
-                        <canvas id="chartCategories"></canvas>
-                    </div>
-                    <div class="chart-container">
-                        <h3>Ingresos vs Gastos</h3>
-                        <canvas id="chartComparison"></canvas>
-                    </div>
+                    <div class="chart-container"><h3>Gastos por Categoría</h3><canvas id="chartCategories"></canvas></div>
+                    <div class="chart-container"><h3>Ingresos vs Gastos</h3><canvas id="chartComparison"></canvas></div>
                 </div>
             </div>
 
@@ -187,52 +153,18 @@
                 <div class="form-container">
                     <h3>Registrar Gasto</h3>
                     <form id="formGasto">
-                        <div class="form-group">
-                            <label>Fecha</label>
-                            <input type="date" id="gastoFecha" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Descripción</label>
-                            <input type="text" id="gastoDesc" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Categoría</label>
-                            <select id="gastoCategoria" required>
-                                <option value="Comida">Comida</option>
-                                <option value="Transporte">Transporte</option>
-                                <option value="Servicios">Servicios</option>
-                                <option value="Entretenimiento">Entretenimiento</option>
-                                <option value="Salud">Salud</option>
-                                <option value="Otros">Otros</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Monto</label>
-                            <input type="number" id="gastoMonto" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Método de Pago</label>
-                            <input type="text" id="gastoPago" placeholder="PSE, Nequi, Efectivo...">
-                        </div>
-                        <button type="submit" class="btn btn-primary">💾 Guardar Gasto</button>
+                        <div class="form-group"><label>Fecha</label><input type="date" id="gastoFecha" required></div>
+                        <div class="form-group"><label>Descripción</label><input type="text" id="gastoDesc" required></div>
+                        <div class="form-group"><label>Categoría</label><select id="gastoCategoria" required><option value="Comida">Comida</option><option value="Transporte">Transporte</option><option value="Servicios">Servicios</option><option value="Entretenimiento">Entretenimiento</option><option value="Salud">Salud</option><option value="Otros">Otros</option></select></div>
+                        <div class="form-group"><label>Monto</label><input type="number" id="gastoMonto" required></div>
+                        <div class="form-group"><label>Método de Pago</label><input type="text" id="gastoPago"></div>
+                        <button type="submit" class="btn btn-primary">💾 Guardar</button>
                     </form>
                 </div>
                 <div class="table-container">
                     <h3 style="margin-bottom: 15px;">Historial de Gastos</h3>
                     <div id="loadingGastos" class="loading">Cargando...</div>
-                    <table id="tableGastos" style="display: none;">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Descripción</th>
-                                <th>Categoría</th>
-                                <th>Monto</th>
-                                <th>Pago</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bodyGastos"></tbody>
-                    </table>
+                    <table id="tableGastos" style="display: none;"><thead><tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th>Monto</th><th>Pago</th><th>Acciones</th></tr></thead><tbody id="bodyGastos"></tbody></table>
                 </div>
             </div>
 
@@ -240,40 +172,17 @@
                 <div class="form-container">
                     <h3>Registrar Ingreso</h3>
                     <form id="formIngreso">
-                        <div class="form-group">
-                            <label>Fecha</label>
-                            <input type="date" id="ingresoFecha" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Descripción</label>
-                            <input type="text" id="ingresoDesc" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Monto</label>
-                            <input type="number" id="ingresoMonto" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Fuente</label>
-                            <input type="text" id="ingresoFuente" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">💾 Guardar Ingreso</button>
+                        <div class="form-group"><label>Fecha</label><input type="date" id="ingresoFecha" required></div>
+                        <div class="form-group"><label>Descripción</label><input type="text" id="ingresoDesc" required></div>
+                        <div class="form-group"><label>Monto</label><input type="number" id="ingresoMonto" required></div>
+                        <div class="form-group"><label>Fuente</label><input type="text" id="ingresoFuente" required></div>
+                        <button type="submit" class="btn btn-primary">💾 Guardar</button>
                     </form>
                 </div>
                 <div class="table-container">
                     <h3 style="margin-bottom: 15px;">Historial de Ingresos</h3>
                     <div id="loadingIngresos" class="loading">Cargando...</div>
-                    <table id="tableIngresos" style="display: none;">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Descripción</th>
-                                <th>Monto</th>
-                                <th>Fuente</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bodyIngresos"></tbody>
-                    </table>
+                    <table id="tableIngresos" style="display: none;"><thead><tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Fuente</th><th>Acciones</th></tr></thead><tbody id="bodyIngresos"></tbody></table>
                 </div>
             </div>
 
@@ -281,45 +190,18 @@
                 <div class="form-container">
                     <h3>Nuevo CDT</h3>
                     <form id="formCDT">
-                        <div class="form-group">
-                            <label>Banco</label>
-                            <input type="text" id="cdtBanco" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Monto</label>
-                            <input type="number" id="cdtMonto" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Tasa (%)</label>
-                            <input type="number" step="0.1" id="cdtTasa" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Fecha Inicio</label>
-                            <input type="date" id="cdtInicio" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Fecha Fin</label>
-                            <input type="date" id="cdtFin" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">💾 Guardar CDT</button>
+                        <div class="form-group"><label>Banco</label><input type="text" id="cdtBanco" required></div>
+                        <div class="form-group"><label>Monto</label><input type="number" id="cdtMonto" required></div>
+                        <div class="form-group"><label>Tasa (%)</label><input type="number" step="0.1" id="cdtTasa" required></div>
+                        <div class="form-group"><label>Fecha Inicio</label><input type="date" id="cdtInicio" required></div>
+                        <div class="form-group"><label>Fecha Fin</label><input type="date" id="cdtFin" required></div>
+                        <button type="submit" class="btn btn-primary">💾 Guardar</button>
                     </form>
                 </div>
                 <div class="table-container">
                     <h3 style="margin-bottom: 15px;">Mis CDTs</h3>
                     <div id="loadingCDTs" class="loading">Cargando...</div>
-                    <table id="tableCDTs" style="display: none;">
-                        <thead>
-                            <tr>
-                                <th>Banco</th>
-                                <th>Monto</th>
-                                <th>Tasa</th>
-                                <th>Inicio</th>
-                                <th>Fin</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bodyCDTs"></tbody>
-                    </table>
+                    <table id="tableCDTs" style="display: none;"><thead><tr><th>Banco</th><th>Monto</th><th>Tasa</th><th>Inicio</th><th>Fin</th><th>Acciones</th></tr></thead><tbody id="bodyCDTs"></tbody></table>
                 </div>
             </div>
         </div>
@@ -342,7 +224,6 @@
 
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbw2GtG5vsvvpg2dfNMnBFmiEOco6oiv7wOwhuQD3iJmxWh73PwrhU7W_OeqSZXWr7Rf/exec';
-
         let allData = { gastos: [], ingresos: [], cdts: [] };
         let chart1, chart2;
 
@@ -358,16 +239,10 @@
                 const res = await fetch(API_URL);
                 allData = await res.json();
                 renderAll();
-            } catch (e) { 
-                alert("Error al conectar con Google Sheets. Verifica la URL del API."); 
-                console.error(e);
-            }
+            } catch (e) { alert("Error al conectar"); console.error(e); }
         }
 
-        function cleanDate(dateStr) {
-            if (!dateStr) return "";
-            return dateStr.toString().substring(0, 10);
-        }
+        function cleanDate(d) { return d ? d.toString().substring(0, 10) : ""; }
 
         function renderAll() {
             renderGastos();
@@ -377,66 +252,22 @@
         }
 
         function renderGastos() {
-            const container = document.getElementById('bodyGastos');
-            const data = allData.gastos || [];
-            
-            container.innerHTML = data.map(item => `
-                <tr>
-                    <td>${cleanDate(item.fecha)}</td>
-                    <td>${item.descripcion || ''}</td>
-                    <td>${item.categoria || ''}</td>
-                    <td>${formatMoney(item.monto || 0)}</td>
-                    <td>${item.pago || ''}</td>
-                    <td>
-                        <button class="btn btn-primary btn-sm" onclick="openEdit('Gasto', ${item.rowId})">✎ Editar</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteItem('Gasto', ${item.rowId})">✖ Eliminar</button>
-                    </td>
-                </tr>
-            `).join('');
-            
+            const tbody = document.getElementById('bodyGastos');
+            tbody.innerHTML = (allData.gastos || []).map(i => `<tr><td>${cleanDate(i.fecha)}</td><td>${i.descripcion||''}</td><td>${i.categoria||''}</td><td>${formatMoney(i.monto||0)}</td><td>${i.pago||''}</td><td><button class="btn btn-primary btn-sm" onclick="openEdit('Gasto',${i.rowId})">✎</button><button class="btn btn-danger btn-sm" onclick="deleteItem('Gasto',${i.rowId})">✖</button></td></tr>`).join('');
             document.getElementById('loadingGastos').style.display = 'none';
             document.getElementById('tableGastos').style.display = 'table';
         }
 
         function renderIngresos() {
-            const container = document.getElementById('bodyIngresos');
-            const data = allData.ingresos || [];
-            
-            container.innerHTML = data.map(item => `
-                <tr>
-                    <td>${cleanDate(item.fecha)}</td>
-                    <td>${item.descripcion || ''}</td>
-                    <td>${formatMoney(item.monto || 0)}</td>
-                    <td>${item.fuente || ''}</td>
-                    <td>
-                        <button class="btn btn-primary btn-sm" onclick="openEdit('Ingreso', ${item.rowId})">✎ Editar</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteItem('Ingreso', ${item.rowId})">✖ Eliminar</button>
-                    </td>
-                </tr>
-            `).join('');
-            
+            const tbody = document.getElementById('bodyIngresos');
+            tbody.innerHTML = (allData.ingresos || []).map(i => `<tr><td>${cleanDate(i.fecha)}</td><td>${i.descripcion||''}</td><td>${formatMoney(i.monto||0)}</td><td>${i.fuente||''}</td><td><button class="btn btn-primary btn-sm" onclick="openEdit('Ingreso',${i.rowId})">✎</button><button class="btn btn-danger btn-sm" onclick="deleteItem('Ingreso',${i.rowId})">✖</button></td></tr>`).join('');
             document.getElementById('loadingIngresos').style.display = 'none';
             document.getElementById('tableIngresos').style.display = 'table';
         }
 
         function renderCDTs() {
-            const container = document.getElementById('bodyCDTs');
-            const data = allData.cdts || [];
-            
-            container.innerHTML = data.map(item => `
-                <tr>
-                    <td>${item.banco || ''}</td>
-                    <td>${formatMoney(item.monto || 0)}</td>
-                    <td>${item.tasa || 0}%</td>
-                    <td>${cleanDate(item.inicio)}</td>
-                    <td>${cleanDate(item.fin)}</td>
-                    <td>
-                        <button class="btn btn-primary btn-sm" onclick="openEdit('CDT', ${item.rowId})">✎ Editar</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteItem('CDT', ${item.rowId})">✖ Eliminar</button>
-                    </td>
-                </tr>
-            `).join('');
-            
+            const tbody = document.getElementById('bodyCDTs');
+            tbody.innerHTML = (allData.cdts || []).map(i => `<tr><td>${i.banco||''}</td><td>${formatMoney(i.monto||0)}</td><td>${i.tasa||0}%</td><td>${cleanDate(i.inicio)}</td><td>${cleanDate(i.fin)}</td><td><button class="btn btn-primary btn-sm" onclick="openEdit('CDT',${i.rowId})">✎</button><button class="btn btn-danger btn-sm" onclick="deleteItem('CDT',${i.rowId})">✖</button></td></tr>`).join('');
             document.getElementById('loadingCDTs').style.display = 'none';
             document.getElementById('tableCDTs').style.display = 'table';
         }
@@ -448,232 +279,102 @@
         }
 
         async function deleteItem(type, rowId) {
-            if(!confirm("¿Estás seguro de eliminar este registro?")) return;
-            
-            try {
-                await send({ action: 'delete' + type, index: rowId });
-                alert('Registro eliminado exitosamente');
-            } catch(e) {
-                alert('Error al eliminar: ' + e.message);
-            }
+            if(!confirm("¿Eliminar?")) return;
+            try { await send({ action: 'delete' + type, index: rowId }); alert('Eliminado'); } catch(e) { alert('Error'); }
         }
 
         function openEdit(type, rowId) {
-            const listName = type.toLowerCase() + 's';
-            const item = allData[listName].find(i => i.rowId === rowId);
-            
-            if (!item) {
-                alert('Registro no encontrado');
-                return;
-            }
-            
+            const list = allData[type.toLowerCase() + 's'];
+            const item = list.find(i => i.rowId === rowId);
+            if (!item) { alert('No encontrado'); return; }
             document.getElementById('editIndex').value = rowId;
             document.getElementById('editType').value = 'update' + type;
             document.getElementById('editTitle').textContent = 'Editar ' + type;
-            
-            const fields = document.getElementById('editFields');
             let html = '';
-            
             Object.keys(item).forEach(k => {
                 if(k === 'rowId') return;
-                
                 let val = item[k];
                 let inputType = "text";
                 let label = k.charAt(0).toUpperCase() + k.slice(1);
-                
-                if(k.toLowerCase().includes('fecha') || k === 'inicio' || k === 'fin') {
-                    val = cleanDate(val);
-                    inputType = "date";
-                } else if(k === 'monto' || k === 'tasa') {
-                    inputType = "number";
-                    if(k === 'tasa') inputType = "number\" step=\"0.1";
-                } else if(k === 'categoria') {
-                    html += `
-                        <div class="form-group">
-                            <label>${label}</label>
-                            <select name="${k}" class="form-control">
-                                <option value="Comida" ${val === 'Comida' ? 'selected' : ''}>Comida</option>
-                                <option value="Transporte" ${val === 'Transporte' ? 'selected' : ''}>Transporte</option>
-                                <option value="Servicios" ${val === 'Servicios' ? 'selected' : ''}>Servicios</option>
-                                <option value="Entretenimiento" ${val === 'Entretenimiento' ? 'selected' : ''}>Entretenimiento</option>
-                                <option value="Salud" ${val === 'Salud' ? 'selected' : ''}>Salud</option>
-                                <option value="Otros" ${val === 'Otros' ? 'selected' : ''}>Otros</option>
-                            </select>
-                        </div>
-                    `;
+                if(k.toLowerCase().includes('fecha') || k === 'inicio' || k === 'fin') { val = cleanDate(val); inputType = "date"; }
+                else if(k === 'monto' || k === 'tasa') { inputType = "number"; if(k === 'tasa') inputType = "number\" step=\"0.1"; }
+                else if(k === 'categoria') {
+                    html += `<div class="form-group"><label>${label}</label><select name="${k}"><option value="Comida" ${val === 'Comida' ? 'selected' : ''}>Comida</option><option value="Transporte" ${val === 'Transporte' ? 'selected' : ''}>Transporte</option><option value="Servicios" ${val === 'Servicios' ? 'selected' : ''}>Servicios</option><option value="Entretenimiento" ${val === 'Entretenimiento' ? 'selected' : ''}>Entretenimiento</option><option value="Salud" ${val === 'Salud' ? 'selected' : ''}>Salud</option><option value="Otros" ${val === 'Otros' ? 'selected' : ''}>Otros</option></select></div>`;
                     return;
                 }
-                
-                html += `
-                    <div class="form-group">
-                        <label>${label}</label>
-                        <input name="${k}" type="${inputType}" value="${val || ''}" class="form-control">
-                    </div>
-                `;
+                html += `<div class="form-group"><label>${label}</label><input name="${k}" type="${inputType}" value="${val || ''}"></div>`;
             });
-            
-            fields.innerHTML = html;
+            document.getElementById('editFields').innerHTML = html;
             document.getElementById('modalEdit').classList.add('active');
         }
 
-        function closeModal() { 
-            document.getElementById('modalEdit').classList.remove('active'); 
-        }
+        function closeModal() { document.getElementById('modalEdit').classList.remove('active'); }
 
         async function send(payload) {
-            try {
-                const res = await fetch(API_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify(payload) 
-                });
-                const result = await res.json();
-                
-                if(result.success) {
-                    await loadData();
-                } else {
-                    throw new Error(result.error || 'Error desconocido');
-                }
-            } catch (e) { 
-                console.error(e);
-                throw e;
-            }
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+            const result = await res.json();
+            if(result.success) await loadData();
+            else throw new Error(result.error || 'Error');
         }
 
         function setupForms() {
             document.getElementById('formGasto').onsubmit = async (e) => {
                 e.preventDefault();
                 try {
-                    await send({
-                        action: 'addGasto',
-                        fecha: document.getElementById('gastoFecha').value,
-                        descripcion: document.getElementById('gastoDesc').value,
-                        categoria: document.getElementById('gastoCategoria').value,
-                        monto: Number(document.getElementById('gastoMonto').value),
-                        pago: document.getElementById('gastoPago').value
-                    });
+                    await send({ action: 'addGasto', fecha: document.getElementById('gastoFecha').value, descripcion: document.getElementById('gastoDesc').value, categoria: document.getElementById('gastoCategoria').value, monto: Number(document.getElementById('gastoMonto').value), pago: document.getElementById('gastoPago').value });
                     e.target.reset();
-                    const today = new Date().toISOString().split('T')[0];
-                    document.getElementById('gastoFecha').value = today;
-                    alert('Gasto guardado exitosamente');
-                } catch(err) {
-                    alert('Error al guardar: ' + err.message);
-                }
+                    document.getElementById('gastoFecha').value = new Date().toISOString().split('T')[0];
+                    alert('Guardado');
+                } catch(err) { alert('Error'); }
             };
-
             document.getElementById('formIngreso').onsubmit = async (e) => {
                 e.preventDefault();
                 try {
-                    await send({
-                        action: 'addIngreso',
-                        fecha: document.getElementById('ingresoFecha').value,
-                        descripcion: document.getElementById('ingresoDesc').value,
-                        monto: Number(document.getElementById('ingresoMonto').value),
-                        fuente: document.getElementById('ingresoFuente').value
-                    });
+                    await send({ action: 'addIngreso', fecha: document.getElementById('ingresoFecha').value, descripcion: document.getElementById('ingresoDesc').value, monto: Number(document.getElementById('ingresoMonto').value), fuente: document.getElementById('ingresoFuente').value });
                     e.target.reset();
-                    const today = new Date().toISOString().split('T')[0];
-                    document.getElementById('ingresoFecha').value = today;
-                    alert('Ingreso guardado exitosamente');
-                } catch(err) {
-                    alert('Error al guardar: ' + err.message);
-                }
+                    document.getElementById('ingresoFecha').value = new Date().toISOString().split('T')[0];
+                    alert('Guardado');
+                } catch(err) { alert('Error'); }
             };
-
             document.getElementById('formCDT').onsubmit = async (e) => {
                 e.preventDefault();
                 try {
-                    await send({
-                        action: 'addCDT',
-                        banco: document.getElementById('cdtBanco').value,
-                        monto: Number(document.getElementById('cdtMonto').value),
-                        tasa: Number(document.getElementById('cdtTasa').value),
-                        inicio: document.getElementById('cdtInicio').value,
-                        fin: document.getElementById('cdtFin').value
-                    });
+                    await send({ action: 'addCDT', banco: document.getElementById('cdtBanco').value, monto: Number(document.getElementById('cdtMonto').value), tasa: Number(document.getElementById('cdtTasa').value), inicio: document.getElementById('cdtInicio').value, fin: document.getElementById('cdtFin').value });
                     e.target.reset();
-                    const today = new Date().toISOString().split('T')[0];
-                    document.getElementById('cdtInicio').value = today;
-                    alert('CDT guardado exitosamente');
-                } catch(err) {
-                    alert('Error al guardar: ' + err.message);
-                }
+                    document.getElementById('cdtInicio').value = new Date().toISOString().split('T')[0];
+                    alert('Guardado');
+                } catch(err) { alert('Error'); }
             };
-
             document.getElementById('formEdit').onsubmit = async (e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target);
                 const payload = Object.fromEntries(formData.entries());
                 payload.action = document.getElementById('editType').value;
                 payload.index = document.getElementById('editIndex').value;
-                
-                try {
-                    closeModal();
-                    await send(payload);
-                    alert('Registro actualizado exitosamente');
-                } catch(err) {
-                    alert('Error al actualizar: ' + err.message);
-                }
+                try { closeModal(); await send(payload); alert('Actualizado'); } catch(err) { alert('Error'); }
             };
         }
 
-        function formatMoney(n) { 
-            return new Intl.NumberFormat('es-CO', { 
-                style: 'currency', 
-                currency: 'COP', 
-                maximumFractionDigits: 0 
-            }).format(n); 
-        }
+        function formatMoney(n) { return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n); }
 
         function updateDashboard() {
-            const currentMonth = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
-            
-            const gastosMonth = (allData.gastos || []).filter(g => {
-                const date = new Date(g.fecha);
-                return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
-            });
-            
-            const ingresosMonth = (allData.ingresos || []).filter(i => {
-                const date = new Date(i.fecha);
-                return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
-            });
-            
-            const tg = gastosMonth.reduce((s, i) => s + (i.monto || 0), 0);
-            const ti = ingresosMonth.reduce((s, i) => s + (i.monto || 0), 0);
+            const m = new Date().getMonth(), y = new Date().getFullYear();
+            const gm = (allData.gastos || []).filter(g => { const d = new Date(g.fecha); return d.getMonth() === m && d.getFullYear() === y; });
+            const im = (allData.ingresos || []).filter(i => { const d = new Date(i.fecha); return d.getMonth() === m && d.getFullYear() === y; });
+            const tg = gm.reduce((s, i) => s + (i.monto || 0), 0);
+            const ti = im.reduce((s, i) => s + (i.monto || 0), 0);
             const tc = (allData.cdts || []).reduce((s, i) => s + (i.monto || 0), 0);
-            
             document.getElementById('totalGastos').innerText = formatMoney(tg);
             document.getElementById('totalIngresos').innerText = formatMoney(ti);
             document.getElementById('balance').innerText = formatMoney(ti - tg);
             document.getElementById('totalCDTs').innerText = formatMoney(tc);
-
-            // Gráfico de categorías
-            const categorias = {};
-            gastosMonth.forEach(g => {
-                const cat = g.categoria || 'Sin categoría';
-                categorias[cat] = (categorias[cat] || 0) + g.monto;
-            });
-
+            const cat = {};
+            gm.forEach(g => { const c = g.categoria || 'Sin'; cat[c] = (cat[c] || 0) + g.monto; });
             if(chart1) chart1.destroy();
-            chart1 = new Chart(document.getElementById('chartCategories'), {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(categorias),
-                    datasets: [{
-                        data: Object.values(categorias),
-                        backgroundColor: [
-                            '#667eea', '#764ba2', '#11998e', '#38ef7d',
-                            '#4facfe', '#00f2fe', '#fa709a', '#fee140'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'bottom' }
-                    }
-                }
-            });
-
-            // Gráfico de comparación
-            if(chart
+            chart1 = new Chart(document.getElementById('chartCategories'), { type: 'doughnut', data: { labels: Object.keys(cat), datasets: [{ data: Object.values(cat), backgroundColor: ['#667eea', '#764ba2', '#11998e', '#38ef7d', '#4facfe', '#00f2fe', '#fa709a', '#fee140'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
+            if(chart2) chart2.destroy();
+            chart2 = new Chart(document.getElementById('chartComparison'), { type: 'bar', data: { labels: ['Ingresos', 'Gastos'], datasets: [{ label: 'Monto', data: [ti, tg], backgroundColor: ['#38ef7d', '#ff4d4d'] }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+        }
+    </script>
+</body>
+</html>
