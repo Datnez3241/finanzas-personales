@@ -114,6 +114,7 @@
             overflow-y: auto;
         }
         .loading { text-align: center; padding: 20px; color: #667eea; font-weight: bold; }
+        .filter-section { margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         @media (max-width: 768px) {
             .sheet-link { position: static; display: block; margin-top: 15px; }
             .charts-grid { grid-template-columns: 1fr; }
@@ -133,6 +134,7 @@
             <button class="tab" onclick="showTab('gastos')">💸 Gastos</button>
             <button class="tab" onclick="showTab('ingresos')">💵 Ingresos</button>
             <button class="tab" onclick="showTab('cdts')">🏦 CDTs</button>
+            <button class="tab" onclick="showTab('cesantias')">💼 Cesantías</button>
         </div>
 
         <div class="content">
@@ -204,6 +206,31 @@
                     <table id="tableCDTs" style="display: none;"><thead><tr><th>Banco</th><th>Monto</th><th>Tasa</th><th>Inicio</th><th>Fin</th><th>Acciones</th></tr></thead><tbody id="bodyCDTs"></tbody></table>
                 </div>
             </div>
+
+            <div id="cesantias" class="tab-content">
+                <div class="form-container">
+                    <h3>Registrar Cesantía</h3>
+                    <form id="formCesantia">
+                        <div class="form-group"><label>Fecha</label><input type="date" id="cesantiaFecha" required></div>
+                        <div class="form-group"><label>Empresa/Fondo</label><input type="text" id="cesantiaEmpresa" required></div>
+                        <div class="form-group"><label>Monto</label><input type="number" id="cesantiaMonto" required></div>
+                        <div class="form-group"><label>Tipo</label><select id="cesantiaTipo" required><option value="Aporte">Aporte</option><option value="Retiro">Retiro</option><option value="Intereses">Intereses</option></select></div>
+                        <div class="form-group"><label>Observaciones</label><input type="text" id="cesantiaObs"></div>
+                        <button type="submit" class="btn btn-primary">💾 Guardar</button>
+                    </form>
+                </div>
+                <div class="table-container">
+                    <h3 style="margin-bottom: 15px;">Historial de Cesantías</h3>
+                    <div class="filter-section">
+                        <label style="font-weight: 600;">Filtrar por mes:</label>
+                        <input type="month" id="filterCesantias" style="padding: 8px; border: 2px solid #e9ecef; border-radius: 8px;">
+                        <button onclick="applyFilterCesantias()" class="btn btn-primary btn-sm">Filtrar</button>
+                        <button onclick="clearFilterCesantias()" class="btn btn-sm">Ver Todo</button>
+                    </div>
+                    <div id="loadingCesantias" class="loading">Cargando...</div>
+                    <table id="tableCesantias" style="display: none;"><thead><tr><th>Fecha</th><th>Empresa/Fondo</th><th>Tipo</th><th>Monto</th><th>Observaciones</th><th>Acciones</th></tr></thead><tbody id="bodyCesantias"></tbody></table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -224,8 +251,9 @@
 
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbw2GtG5vsvvpg2dfNMnBFmiEOco6oiv7wOwhuQD3iJmxWh73PwrhU7W_OeqSZXWr7Rf/exec';
-        let allData = { gastos: [], ingresos: [], cdts: [] };
+        let allData = { gastos: [], ingresos: [], cdts: [], cesantias: [] };
         let chart1, chart2;
+        let filteredCesantias = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
@@ -239,15 +267,21 @@
                 const res = await fetch(API_URL);
                 allData = await res.json();
                 renderAll();
-            } catch (e) { alert("Error al conectar"); console.error(e); }
+            } catch (e) { 
+                alert("Error al conectar con Google Sheets"); 
+                console.error(e); 
+            }
         }
 
-        function cleanDate(d) { return d ? d.toString().substring(0, 10) : ""; }
+        function cleanDate(d) { 
+            return d ? d.toString().substring(0, 10) : ""; 
+        }
 
         function renderAll() {
             renderGastos();
             renderIngresos();
             renderCDTs();
+            renderCesantias();
             updateDashboard();
         }
 
@@ -272,109 +306,289 @@
             document.getElementById('tableCDTs').style.display = 'table';
         }
 
+        function renderCesantias() {
+            const tbody = document.getElementById('bodyCesantias');
+            const data = filteredCesantias || allData.cesantias || [];
+            tbody.innerHTML = data.map(i => `<tr><td>${cleanDate(i.fecha)}</td><td>${i.empresa||''}</td><td>${i.tipo||''}</td><td>${formatMoney(i.monto||0)}</td><td>${i.observaciones||''}</td><td><button class="btn btn-primary btn-sm" onclick="openEdit('Cesantia',${i.rowId})">✎</button><button class="btn btn-danger btn-sm" onclick="deleteItem('Cesantia',${i.rowId})">✖</button></td></tr>`).join('');
+            document.getElementById('loadingCesantias').style.display = 'none';
+            document.getElementById('tableCesantias').style.display = 'table';
+        }
+
+        function applyFilterCesantias() {
+            const filterValue = document.getElementById('filterCesantias').value;
+            if (!filterValue) { 
+                alert('Por favor selecciona un mes'); 
+                return; 
+            }
+            const [year, month] = filterValue.split('-');
+            filteredCesantias = (allData.cesantias || []).filter(c => {
+                const d = new Date(c.fecha);
+                return d.getFullYear() === parseInt(year) && (d.getMonth() + 1) === parseInt(month);
+            });
+            renderCesantias();
+        }
+
+        function clearFilterCesantias() {
+            filteredCesantias = null;
+            document.getElementById('filterCesantias').value = '';
+            renderCesantias();
+        }
+
         function showTab(name) {
-            document.querySelectorAll('.tab-content, .tab').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
             document.getElementById(name).classList.add('active');
             event.target.classList.add('active');
         }
 
         async function deleteItem(type, rowId) {
-            if(!confirm("¿Eliminar?")) return;
-            try { await send({ action: 'delete' + type, index: rowId }); alert('Eliminado'); } catch(e) { alert('Error'); }
+            if(!confirm("¿Estás seguro de eliminar este registro?")) return;
+            try { 
+                const payload = { action: 'delete' + type, index: rowId };
+                console.log('Eliminando:', payload);
+                await send(payload); 
+                alert('Registro eliminado exitosamente'); 
+            } catch(e) { 
+                console.error('Error al eliminar:', e);
+                alert('Error al eliminar: ' + e.message); 
+            }
         }
 
         function openEdit(type, rowId) {
-            const list = allData[type.toLowerCase() + 's'];
+            const listKey = type.toLowerCase() === 'cdt' ? 'cdts' : type.toLowerCase() + 's';
+            const list = allData[listKey];
             const item = list.find(i => i.rowId === rowId);
-            if (!item) { alert('No encontrado'); return; }
+            if (!item) { 
+                alert('Registro no encontrado'); 
+                return; 
+            }
+            
             document.getElementById('editIndex').value = rowId;
             document.getElementById('editType').value = 'update' + type;
             document.getElementById('editTitle').textContent = 'Editar ' + type;
+            
             let html = '';
             Object.keys(item).forEach(k => {
                 if(k === 'rowId') return;
                 let val = item[k];
                 let inputType = "text";
                 let label = k.charAt(0).toUpperCase() + k.slice(1);
-                if(k.toLowerCase().includes('fecha') || k === 'inicio' || k === 'fin') { val = cleanDate(val); inputType = "date"; }
-                else if(k === 'monto' || k === 'tasa') { inputType = "number"; if(k === 'tasa') inputType = "number\" step=\"0.1"; }
+                
+                if(k.toLowerCase().includes('fecha') || k === 'inicio' || k === 'fin') { 
+                    val = cleanDate(val); 
+                    inputType = "date"; 
+                }
+                else if(k === 'monto' || k === 'tasa') { 
+                    inputType = "number"; 
+                    if(k === 'tasa') inputType = "number\" step=\"0.1"; 
+                }
                 else if(k === 'categoria') {
                     html += `<div class="form-group"><label>${label}</label><select name="${k}"><option value="Comida" ${val === 'Comida' ? 'selected' : ''}>Comida</option><option value="Transporte" ${val === 'Transporte' ? 'selected' : ''}>Transporte</option><option value="Servicios" ${val === 'Servicios' ? 'selected' : ''}>Servicios</option><option value="Entretenimiento" ${val === 'Entretenimiento' ? 'selected' : ''}>Entretenimiento</option><option value="Salud" ${val === 'Salud' ? 'selected' : ''}>Salud</option><option value="Otros" ${val === 'Otros' ? 'selected' : ''}>Otros</option></select></div>`;
                     return;
                 }
+                else if(k === 'tipo' && type === 'Cesantia') {
+                    html += `<div class="form-group"><label>${label}</label><select name="${k}"><option value="Aporte" ${val === 'Aporte' ? 'selected' : ''}>Aporte</option><option value="Retiro" ${val === 'Retiro' ? 'selected' : ''}>Retiro</option><option value="Intereses" ${val === 'Intereses' ? 'selected' : ''}>Intereses</option></select></div>`;
+                    return;
+                }
+                
                 html += `<div class="form-group"><label>${label}</label><input name="${k}" type="${inputType}" value="${val || ''}"></div>`;
             });
+            
             document.getElementById('editFields').innerHTML = html;
             document.getElementById('modalEdit').classList.add('active');
         }
 
-        function closeModal() { document.getElementById('modalEdit').classList.remove('active'); }
+        function closeModal() { 
+            document.getElementById('modalEdit').classList.remove('active'); 
+        }
 
         async function send(payload) {
-            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-            const result = await res.json();
-            if(result.success) await loadData();
-            else throw new Error(result.error || 'Error');
+            console.log('Enviando al servidor:', payload);
+            const res = await fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify(payload),
+                mode: 'no-cors'
+            });
+            
+            // Esperar un momento y recargar datos
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            await loadData();
+            return { success: true };
         }
 
         function setupForms() {
             document.getElementById('formGasto').onsubmit = async (e) => {
                 e.preventDefault();
                 try {
-                    await send({ action: 'addGasto', fecha: document.getElementById('gastoFecha').value, descripcion: document.getElementById('gastoDesc').value, categoria: document.getElementById('gastoCategoria').value, monto: Number(document.getElementById('gastoMonto').value), pago: document.getElementById('gastoPago').value });
+                    await send({ 
+                        action: 'addGasto', 
+                        fecha: document.getElementById('gastoFecha').value, 
+                        descripcion: document.getElementById('gastoDesc').value, 
+                        categoria: document.getElementById('gastoCategoria').value, 
+                        monto: Number(document.getElementById('gastoMonto').value), 
+                        pago: document.getElementById('gastoPago').value 
+                    });
                     e.target.reset();
-                    document.getElementById('gastoFecha').value = new Date().toISOString().split('T')[0];
-                    alert('Guardado');
-                } catch(err) { alert('Error'); }
+                    document.getElementById('cesantiaFecha').value = new Date().toISOString().split('T')[0];
+                    alert('Cesantía guardada exitosamente');
+                } catch(err) { 
+                    console.error('Error:', err);
+                    alert('Error al guardar'); 
+                }
             };
-            document.getElementById('formIngreso').onsubmit = async (e) => {
-                e.preventDefault();
-                try {
-                    await send({ action: 'addIngreso', fecha: document.getElementById('ingresoFecha').value, descripcion: document.getElementById('ingresoDesc').value, monto: Number(document.getElementById('ingresoMonto').value), fuente: document.getElementById('ingresoFuente').value });
-                    e.target.reset();
-                    document.getElementById('ingresoFecha').value = new Date().toISOString().split('T')[0];
-                    alert('Guardado');
-                } catch(err) { alert('Error'); }
-            };
-            document.getElementById('formCDT').onsubmit = async (e) => {
-                e.preventDefault();
-                try {
-                    await send({ action: 'addCDT', banco: document.getElementById('cdtBanco').value, monto: Number(document.getElementById('cdtMonto').value), tasa: Number(document.getElementById('cdtTasa').value), inicio: document.getElementById('cdtInicio').value, fin: document.getElementById('cdtFin').value });
-                    e.target.reset();
-                    document.getElementById('cdtInicio').value = new Date().toISOString().split('T')[0];
-                    alert('Guardado');
-                } catch(err) { alert('Error'); }
-            };
+            
             document.getElementById('formEdit').onsubmit = async (e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target);
                 const payload = Object.fromEntries(formData.entries());
                 payload.action = document.getElementById('editType').value;
-                payload.index = document.getElementById('editIndex').value;
-                try { closeModal(); await send(payload); alert('Actualizado'); } catch(err) { alert('Error'); }
+                payload.index = parseInt(document.getElementById('editIndex').value);
+                
+                console.log('Actualizando:', payload);
+                
+                try { 
+                    closeModal(); 
+                    await send(payload); 
+                    alert('Registro actualizado exitosamente'); 
+                } catch(err) { 
+                    console.error('Error:', err);
+                    alert('Error al actualizar'); 
+                }
             };
         }
 
-        function formatMoney(n) { return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n); }
+        function formatMoney(n) { 
+            return new Intl.NumberFormat('es-CO', { 
+                style: 'currency', 
+                currency: 'COP', 
+                maximumFractionDigits: 0 
+            }).format(n); 
+        }
 
         function updateDashboard() {
             const m = new Date().getMonth(), y = new Date().getFullYear();
-            const gm = (allData.gastos || []).filter(g => { const d = new Date(g.fecha); return d.getMonth() === m && d.getFullYear() === y; });
-            const im = (allData.ingresos || []).filter(i => { const d = new Date(i.fecha); return d.getMonth() === m && d.getFullYear() === y; });
+            const gm = (allData.gastos || []).filter(g => { 
+                const d = new Date(g.fecha); 
+                return d.getMonth() === m && d.getFullYear() === y; 
+            });
+            const im = (allData.ingresos || []).filter(i => { 
+                const d = new Date(i.fecha); 
+                return d.getMonth() === m && d.getFullYear() === y; 
+            });
             const tg = gm.reduce((s, i) => s + (i.monto || 0), 0);
             const ti = im.reduce((s, i) => s + (i.monto || 0), 0);
             const tc = (allData.cdts || []).reduce((s, i) => s + (i.monto || 0), 0);
+            
             document.getElementById('totalGastos').innerText = formatMoney(tg);
             document.getElementById('totalIngresos').innerText = formatMoney(ti);
             document.getElementById('balance').innerText = formatMoney(ti - tg);
             document.getElementById('totalCDTs').innerText = formatMoney(tc);
+            
             const cat = {};
-            gm.forEach(g => { const c = g.categoria || 'Sin'; cat[c] = (cat[c] || 0) + g.monto; });
+            gm.forEach(g => { 
+                const c = g.categoria || 'Sin Categoría'; 
+                cat[c] = (cat[c] || 0) + g.monto; 
+            });
+            
             if(chart1) chart1.destroy();
-            chart1 = new Chart(document.getElementById('chartCategories'), { type: 'doughnut', data: { labels: Object.keys(cat), datasets: [{ data: Object.values(cat), backgroundColor: ['#667eea', '#764ba2', '#11998e', '#38ef7d', '#4facfe', '#00f2fe', '#fa709a', '#fee140'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
+            chart1 = new Chart(document.getElementById('chartCategories'), { 
+                type: 'doughnut', 
+                data: { 
+                    labels: Object.keys(cat), 
+                    datasets: [{ 
+                        data: Object.values(cat), 
+                        backgroundColor: ['#667eea', '#764ba2', '#11998e', '#38ef7d', '#4facfe', '#00f2fe', '#fa709a', '#fee140'] 
+                    }] 
+                }, 
+                options: { 
+                    responsive: true, 
+                    plugins: { 
+                        legend: { position: 'bottom' } 
+                    } 
+                } 
+            });
+            
             if(chart2) chart2.destroy();
-            chart2 = new Chart(document.getElementById('chartComparison'), { type: 'bar', data: { labels: ['Ingresos', 'Gastos'], datasets: [{ label: 'Monto', data: [ti, tg], backgroundColor: ['#38ef7d', '#ff4d4d'] }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+            chart2 = new Chart(document.getElementById('chartComparison'), { 
+                type: 'bar', 
+                data: { 
+                    labels: ['Ingresos', 'Gastos'], 
+                    datasets: [{ 
+                        label: 'Monto', 
+                        data: [ti, tg], 
+                        backgroundColor: ['#38ef7d', '#ff4d4d'] 
+                    }] 
+                }, 
+                options: { 
+                    responsive: true, 
+                    plugins: { 
+                        legend: { display: false } 
+                    }, 
+                    scales: { 
+                        y: { beginAtZero: true } 
+                    } 
+                } 
+            });
         }
     </script>
 </body>
-</html>
+</html>.reset();
+                    document.getElementById('gastoFecha').value = new Date().toISOString().split('T')[0];
+                    alert('Gasto guardado exitosamente');
+                } catch(err) { 
+                    console.error('Error:', err);
+                    alert('Error al guardar'); 
+                }
+            };
+            
+            document.getElementById('formIngreso').onsubmit = async (e) => {
+                e.preventDefault();
+                try {
+                    await send({ 
+                        action: 'addIngreso', 
+                        fecha: document.getElementById('ingresoFecha').value, 
+                        descripcion: document.getElementById('ingresoDesc').value, 
+                        monto: Number(document.getElementById('ingresoMonto').value), 
+                        fuente: document.getElementById('ingresoFuente').value 
+                    });
+                    e.target.reset();
+                    document.getElementById('ingresoFecha').value = new Date().toISOString().split('T')[0];
+                    alert('Ingreso guardado exitosamente');
+                } catch(err) { 
+                    console.error('Error:', err);
+                    alert('Error al guardar'); 
+                }
+            };
+            
+            document.getElementById('formCDT').onsubmit = async (e) => {
+                e.preventDefault();
+                try {
+                    await send({ 
+                        action: 'addCDT', 
+                        banco: document.getElementById('cdtBanco').value, 
+                        monto: Number(document.getElementById('cdtMonto').value), 
+                        tasa: Number(document.getElementById('cdtTasa').value), 
+                        inicio: document.getElementById('cdtInicio').value, 
+                        fin: document.getElementById('cdtFin').value 
+                    });
+                    e.target.reset();
+                    document.getElementById('cdtInicio').value = new Date().toISOString().split('T')[0];
+                    alert('CDT guardado exitosamente');
+                } catch(err) { 
+                    console.error('Error:', err);
+                    alert('Error al guardar'); 
+                }
+            };
+            
+            document.getElementById('formCesantia').onsubmit = async (e) => {
+                e.preventDefault();
+                try {
+                    await send({ 
+                        action: 'addCesantia', 
+                        fecha: document.getElementById('cesantiaFecha').value, 
+                        empresa: document.getElementById('cesantiaEmpresa').value, 
+                        monto: Number(document.getElementById('cesantiaMonto').value), 
+                        tipo: document.getElementById('cesantiaTipo').value,
+                        observaciones: document.getElementById('cesantiaObs').value
+                    });
+                    e.target
